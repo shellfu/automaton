@@ -1,0 +1,41 @@
+# This if the main configuration file for Automaton.
+#
+# Configuration Settings:
+# -----------------------
+#
+#
+# A few things to note:
+# ---------------------
+#   1) You do not need to create the collections before hand.
+#   2) If you use a ReplicaSet then set the following => replicaset: no
+#      otherwise ONLY THE FIRST HOST will be used
+#
+
+# Database Configuration
+# json support is coming soon
+#database_type: 'mongo' or 'yaml'
+database_type:  'yaml'
+
+# Mongo Configuration
+mdb_hosts:      'localhost,mongohost001b:27017,mongohost001c:27017'
+replicaset:     'no'
+
+# Flat File Configuration
+data_path:      '/opt/automaton/data/nodes'
+
+# Database Configuration
+database:       'nodes'
+nodecollection: 'puppet_enc'
+factcollection: 'puppet_facts'
+
+# Puppet Configuration
+environment:    'production'
+inventoryurl:   'https://localhost'
+inventoryport:  '8140'
+enablefacts:    'false'
+
+# Logging Configuration
+logpath:        '/opt/automaton/log/automaton.log'
+enablelog:      'true'
+verbose:        'false'
+debug:          'false'
