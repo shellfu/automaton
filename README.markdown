@@ -63,10 +63,11 @@ This is the manual process to install automaton. We will go over command line su
 [shellfu@automaton opt]$ bundle install
 ```
 
-###### Edit config/config.yml & Set Permissions:
+###### Edit config/config.yml & Set Permissions & lnk automaton to /usr/bin:
 ```bash
 [shellfu@automaton automaton]$ vim config/config.yml
 [shellfu@automaton automaton]$ sudo chown -R puppet:puppet /opt/automaton/
+[shellfu@automaton automaton]$ sudo ln -s /usr/bin/automaton /opt/automaton/bin/automaton_cli.rb
 ```
 
 At this point you may start using automaton with command line support only. You can continue on to enable the REST interface if you so choose.
