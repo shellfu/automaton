@@ -51,17 +51,6 @@ Lets go over the installation and configuration of automaton starting with an ov
 1. Create symlink for */usr/bin/automaton > /path/to/automaton/bin/automaton_cli.rb*
 2. Setup process monitoring 
 
-#### Quick Installation:
-_**not yet implemented... coming soon**_  
-For a quick installation, and configuration of automaton run the setup script. The setup script will guide you through a series of questions and configure automaton based off your input. It also creates a symlink in */usr/bin/automaton > /path/to/automaton/bin/automaton_cli.rb*  
-
-```bash
-[shellfu@automaton]$ cd /opt
-[shellfu@automaton opt]$ git clone https://github.com/shellfu/automaton.git
-[shellfu@automaton opt]$ cd automaton 
-[shellfu@automaton automaton]$ ruby setup.rb 
-```
-
 #### Manual Installation:
 This is the manual process to install automaton. We will go over command line support only then move onto setting up the REST interface on a Unicorn rails server.
 
@@ -104,6 +93,17 @@ At this point you may start using automaton with command line support only. You 
 [shellfu@automaton automaton]$ sudo service nginx reload
 [shellfu@automaton automaton]$ sudo vim /etc/nginx/conf.d/14567_automaton.conf
 [shellfu@automaton automaton]$ bundle exec unicorn -c ./rack/automaton.conf
+```
+
+#### Quick Installation:
+_**not yet implemented... coming soon**_  
+For a quick installation, and configuration of automaton run the setup script. The setup script will guide you through a series of questions and configure automaton based off your input. It also creates a symlink in */usr/bin/automaton > /path/to/automaton/bin/automaton_cli.rb*  
+
+```bash
+[shellfu@automaton]$ cd /opt
+[shellfu@automaton opt]$ git clone https://github.com/shellfu/automaton.git
+[shellfu@automaton opt]$ cd automaton 
+[shellfu@automaton automaton]$ ruby setup.rb 
 ```
 
 ## Usage
