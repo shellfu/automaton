@@ -1,4 +1,5 @@
 # ~$ automaton
+http://shellfu.com/2013/06/automaton-an-external-node-classifier-for-puppet/  
 Automaton is an external node classifier for puppet. Its goal is to ease the creation of node definitions, and support a variety of data backends.
 
 #### Why I Wrote This:
