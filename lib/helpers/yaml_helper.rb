@@ -26,7 +26,6 @@ module Automaton
         node = File.open(path, 'r')
         load(node)
       else
-        msg('info', "#{ path } not found")
         nil
       end
 
@@ -36,8 +35,6 @@ module Automaton
     def add(name, data, type)
       path = "#{@config[:data_path]}/#{ name }.yaml"
       h = data.to_hash.to_yaml
-      msg('DEBUG', "PATH: #{ path }")
-      msg('DEBUG', "PATH: #{ h }")
       File.open("#{@config[:data_path]}/#{ name }.yaml", 'w+') { |f| f.write(h) } unless File.exists?(path)
     end
 
@@ -87,7 +84,6 @@ module Automaton
       end
 
       begin
-        msg('info', "Retrieving #{ path }")
         yaml_data = YAML.load_file(path)
         data.merge!(yaml_data) if yaml_data
       rescue ArgumentError => e
