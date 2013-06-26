@@ -1,6 +1,11 @@
 # ~$ automaton
 Automaton is an external node classifier for puppet. Its goal is to ease the creation of node definitions, and support a variety of data backends.
 
+#### Why I Wrote This:
+At my last gig we used puppet, and had a fairly large deployment. Large enough that a lot of different departments were asking for data. *"What modules are on machineA vs machineB?"*, *"What parameters are applied to machineB? I need to overwrite them can I?"*
+
+We also started to store machine metadata like deploy time, undeploytime, availability zone/physical datacenter, network so on and so fourth. This data was then plugged into other custom tools, and at the time none of the current ENC's could provide this for me. I was having to write scripts to serialize the data from those ENC's into something our developers and management could consume. Those scripts evolved into automaton.
+
 One of the main goals of automaton was to ensure it was robust enough to plug into other tools such as deployment dashboards. At the same time it can also be used in a more lightweight fashion with just the command line and flat file support.
 
 I wanted to pick and choose how and where I wanted my node data consumed and manipulated, and automaton solved this for me. If you like it great! Please shoot me a line with comments or suggestions. 
