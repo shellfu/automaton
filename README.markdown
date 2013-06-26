@@ -20,11 +20,10 @@ _If you wish to contribute to automaton just send a pull request over. You can a
     * YAML
 
 #### RoadMap:
-- [ ] JSON Flat File Support
-- [ ] SQLite Support
-- [ ] Configurable Metadata Storage
-- [ ] Setup Script for Easy Configuration
-- [ ] Convert config files to erb templates to be fed from setup script
+* JSON Flat File Support
+* Configurable Metadata Storage
+* Setup Script for Easy Configuration
+* Convert config files to erb templates to be fed from setup script
 
 #### Requirements:
 * Ruby 1.8.7p352 or higher
@@ -109,6 +108,7 @@ For a quick installation, and configuration of automaton run the setup script. T
 
 ## Usage
 
+#### Quick Usage
 Both CLI and API have very similar formats to make it easy to remember. Take note of the below delimiters when adding class parameters or top level parameters. 
 
 For class parameters you specify like: **timezone^timezone=Europe/Berlin**.  
@@ -122,4 +122,80 @@ This format holds true on both the CLI and the API. I'm not going to go over upd
 :c,  :classes     #( foo^key=value^key1=value1,bar,foo-bar ) # Adds class foo w/ params key & key1, class bar, class foo-bar
 :p,  :parameters  #( key=value,key2=value2 )
 :i,  :inherit     #( blank or node to inherit classes from )
+```
+
+In addition to the above each command has its own help. 
+```bash
+[shellfu@automaton] automaton --help
+usage: automaton [command] [options]
+
+Available commands:
+
+  lookup   Look up a node by name and return class information
+  add      Add a node to the mongo ENC
+  update   Update a node in the mongo ENC
+  remove   Removes a node in the mongo ENC
+  facts    Retrieves and Keeps Facts up to date
+
+[shellfu@automaton] automaton lookup --help
+usage: automaton [command] [options]
+
+    -n, --name         The name or fqdn of the node you want to lookup
+    -h, --help         Display this help message.
+
+```
+
+#### Usage
+It's time to learn how to use this thing right? I'll go over node lookups, additions, updates.
+
+###### Adding a Node
+So below we are going to add a default node definition, add the timezone class, set the timezone class parameter.
+```bash
+[shellfu@automaton] automaton add -n default -c timezone^timezone=Europe/Berlin
+INFO: Node >default< has been added to the ENC.
+```
+
+###### Lookup a Node
+The below command is exactly what puppet will run to retreive a node definition. 
+```bash
+[shellfu@automaton] automaton lookup -n default
+---
+environment: production
+classes:
+  timezone:
+    timezone: Europe/Berlin
+parameters: 
+```
+
+###### Update a Node
+So below we are going to add a default node definition, add the timezone class, set the timezone class parameter.
+```bash
+[shellfu@automaton] automaton update -n default -c timezone^timezone=America/Denver
+INFO: Node >default< Updated
+```  
+ 
+Checking our update
+```bash
+[shellfu@automaton] automaton lookup -n default
+---
+environment: production
+classes:
+  timezone:
+    timezone: America/Denver
+parameters: 
+```
+
+###### Remove a Node
+You can remove a node, class or parameter.
+
+Removing a Class:
+```bash
+[shellfu@automaton] automaton remove -n default -c timezone
+INFO: Class >timezone< Removed from >default< in the ENC 
+```
+
+Removing a Node:
+```bash
+[shellfu@automaton] automaton remove -n default
+INFO: Node >default< Removed from ENC
 ```
