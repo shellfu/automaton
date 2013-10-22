@@ -17,9 +17,10 @@ _If you wish to contribute to automaton just send a pull request over. You can a
 #### Features:
 * REST Interface
 * Separate Command Line Interface
-* Multi-Node Inheritacne
+* Multi-Node Inheritance
 * Parameterized Classes
 * Node Fact Storage
+* Fact Interpolation
 * Easy Configuration via config.yml
 * Database or Flat-File Storage
     * MongoDB

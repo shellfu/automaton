@@ -1,28 +1,14 @@
 require_relative '../config/config'
-require_relative 'log'
-require_relative 'enc_facts'
-require_relative 'hash_helper'
 require_relative 'helpers/helper'
-require_relative 'recursive_merge'
+require_relative 'helpers/fact_helper'
+require_relative 'helpers/hash_helper'
+require_relative 'helpers/merge_helper'
+require_relative 'log'
 require 'yaml'
 
 module Automaton
 
-  class BSON::OrderedHash
-    def to_h
-      inject({}) { |key, value| k, v = value; key[k] = ( if v.class == BSON::OrderedHash then v.to_h else v end); key }
-    end
-
-    def to_json
-      to_h.to_json
-    end
-
-    def to_yaml
-      to_h.to_yaml
-    end
-  end
-
-  class ENCMethods < BSON::OrderedHash
+  class ENCMethods
     def initialize
       @config      = Automaton::Configure::config
       @automaton   = Automaton::Helper::new
@@ -34,12 +20,24 @@ module Automaton
       @hash_helper.str2hash(string, delimiter, type)
     end
 
-    def pmerge
-      @hash_helper.pmerge
-    end
-
     def msg(severity, msg)
       @log.msg(severity, msg)
+    end
+
+    def store_facts(name)
+      @config[:enablefacts] = 'false' if @config[:database_type] == 'yaml'
+      begin
+        facts = Automaton::NodeFacts::retrieve_facts(name).to_hash
+        node = if facts == {}
+                 nil
+               else
+                 { 'node' => name, 'facts' => facts }
+               end
+        @automaton.add(name, node, 'fact') if node
+        msg('info' , "INFO: Facts for node >#{ name }< has been added to the ENC") if @automaton.add(name, node, 'fact')
+      rescue
+        msg('error', "ERROR: Facts for >#{ name }< could not be stored") if @config[:enablefacts] == 'true'
+      end
     end
 
     def find(name)
@@ -51,55 +49,37 @@ module Automaton
     end
 
     def find_inheritance(name)
+      final_hash = {}
       result = find(name)
+      final_hash['enc'] = {} if final_hash['enc'].nil?
       if result.has_key?('inherit') and not result['inherit'].to_s.empty?
-        inode = find(result['inherit'])
-        inode['enc']['classes'] ? (inode['enc']['classes'] unless inode['enc']['classes'].to_s.empty?) : nil if inode
+        child = find_inheritance(result['inherit'])
+        child.deep_merge(result['enc'])
+        final_hash['enc'].deep_merge(child)
       else
-        nil
-      end
-    end
-
-    def store_facts(name)
-      @config[:enablefacts] = 'false' unless @config[:database_type] == 'mongo'
-      begin
-        facts = Automaton::NodeFacts::retrieve_facts(name).to_hash
-        node = if facts == {}
-          nil
-        else
-          { 'node' => name, 'facts' => facts }
-        end
-        @automaton.add(name, node, 'fact') if node
-        msg('info' , "INFO: Facts for node >#{ name }< has been added to the ENC") if @automaton.add(name, node, 'fact')
-      rescue
-        msg('error', "ERROR: Facts for >#{ name }< could not be stored") if @config[:enablefacts] == 'true'
+        final_hash['enc'].deep_merge(result['enc'])
       end
     end
 
     def lookup(name)
-      begin
-        result = find(name)
-        if result
-          inheritance = find_inheritance(name)
+      result = find(name)
+      if result
+        node                = result
+        node['enc']         = find_inheritance(name)
+        environment         = result['enc']['environment']
+        node['environment'] = environment unless environment.to_s.empty?
 
-          if result['inherit'].to_s.empty?
-            result['enc']['classes']
-          elsif result['enc']['classes'].to_s.empty?
-            result['enc']['classes'] = inheritance
-          else
-            if inheritance
-              result['enc']['classes'] = inheritance.rmerge(result['enc']['classes'])
-            else
-              result['enc']['classes']
-            end
-          end
-          result['enc']
-        else
-          msg('warn', "WARNING: Node >#{ name }< NOT found in the ENC")
-          return 'not_found'
-        end
-      rescue ArgumentError => e
-        msg('error', ">#{e.msg}<")
+        # In the event inherited node isn't found
+        # Log that it wasn't found, and set to result['enc']
+        #if node['enc'] == nil and it has key inherit
+        #  node['enc'] = result['enc']
+        #end
+
+        node = Automaton::NodeFacts::deep_iterate(node)
+        return node['enc'].convert_bson_hash
+      else
+        msg('warn', "WARNING: Node >#{ name }< NOT found in the ENC")
+        return 'not_found'
       end
     end
 
@@ -126,30 +106,30 @@ module Automaton
       result = find(name)
 
       # Reference to the Environment, ENC Classes hash & ENC Parameters hash
-      env    = result['enc']['environment']
-      c_hash = result['enc']['classes']
-      p_hash = result['enc']['parameters']
+      environment ? env = environment : env = result['enc']['environment']
+      classes_hash      = result['enc']['classes']
+      parameters_hash   = result['enc']['parameters']
 
       # Classes
       classes = if classes
-        if c_hash.to_s.empty?
+        if classes_hash.to_s.empty?
           str2hash(classes, '^', 'class')
         else
-          c_hash.inject({}) { |h, (k, v)| v.nil? ? h[k] = nil : h[k] = v; h }.merge(str2hash(classes, '^', 'class'), &pmerge)
+          classes_hash.deep_merge(str2hash(classes, '^', 'class'))
         end
       else
-        c_hash
+        classes_hash
       end
 
       # Parameters
       params = if parameters
-        if p_hash.to_s.empty?
+        if parameters_hash.to_s.empty?
           str2hash(parameters, '=', 'parameter')
         else
-          p_hash.rmerge(str2hash(parameters, '=', 'parameter'))
+          parameters_hash.deep_merge(str2hash(parameters, '=', 'parameter'))
         end
       else
-        p_hash
+        parameters_hash
       end
 
       # Inherit
@@ -160,17 +140,13 @@ module Automaton
       end
 
       # Environment
-      environment = if environment.to_s.empty? and env.to_s.empty?
-        @config[:environment]
-      else
-        env.to_s
-      end
+      environment = (environment.to_s.empty? and env.to_s.empty?) ? @config[:environment] : env.to_s
 
       node_data = {'node' => name, 'enc' => {'environment' => environment, 'classes' => classes, 'parameters' => params}, 'inherit' => inherits}
       msg('info', "INFO: Node >#{ name }< Updated") if @automaton.update(result, node_data, 'node')
     end
 
-    def remove(name, nclass = nil, parameters = nil)
+    def remove(name, classes = nil, parameters = nil)
       result = find(name)
       facts_result = find_facts(name) if @config[:enablefacts] == 'true'
 
@@ -179,39 +155,47 @@ module Automaton
         return 'not_found'
       end
 
-      if nclass and parameters
-        msg('warn', 'WARNING: Only 1 Class or 1 Parameter may be removed at a time')
-      elsif nclass
-        # Classes
-        classes = if nclass and nclass.include? 'DELETE'
-          nil
-        elsif nclass and result['enc']['classes'].include? nclass
-          result['enc']['classes'].delete_if { |key, value| key == nclass }
-        else
-          msg('info', "INFO: Class >#{ nclass }< NOT found in >#{ name }<")
-        end
+      if classes or parameters
+      classes = if classes
+                  str2hash(classes, '^', 'class').each_pair do |k, v|
+                    if result['enc']['classes'].key?(k)
+                      puts 'TRUE';
+                      if v.is_a? Hash then
+                        (v.each_pair do |key, value|
+                          p k; p key; p result['enc']['classes'][k];
+                          result['enc']['classes'][k].delete(key)
+                          if result['enc']['classes'][k].length == 0
+                            result['enc']['classes'][k] = nil
+                          end
+                        end)
+                      else
+                        result['enc']['classes'].delete(k)
+                      end
+                    else
+                      result['enc']['classes']
+                    end
+                  end
+                else
+                  result['enc']['classes']
+                end
 
-        node = { 'enc' => { 'classes' => classes } }
-        msg('info', "INFO: Class >#{ nclass }< Removed from >#{ name }< in the ENC") if @automaton.save(result, node, 'node')
 
-      elsif parameters
-        # Parameters
-        params = if parameters and parameters.include? 'DELETE'
-          nil
-        elsif parameters and result['enc']['parameters'].include? parameters
-          result['enc']['parameters'].delete_if { |key, value| key == parameters }
-        else
-          msg('info', "INFO: Parameter >#{ parameters }< NOT found in >#{ name }<")
-        end
+      parameters = if parameters and result['enc']['parameters'].include? parameters
+                result['enc']['parameters'].delete_if { |key, value| key == parameters }
+                if result['enc']['parameters'].length == 0
+                  result['enc']['parameters'] = nil
+                end
+               else
+                 msg('info', "INFO: Parameter >#{ parameters }< NOT found in >#{ name }<")
+               end
 
-        node = { 'enc' => { 'parameters' => params } }
-        msg('info', "INFO: Parameter >#{ parameters }< Removed from >#{ name }< in the ENC") if @automaton.save(result, node, 'node')
+      node = { 'enc' => { 'classes' => classes, 'parameters' => parameters } }
+      msg('info', "INFO: Class >#{ classes }< Removed from >#{ name }< in the ENC") if @automaton.save(result, node, 'node')
       else
         msg('info', "INFO: Node >#{ name }< Removed from ENC") if @automaton.remove(result, 'node')
         msg('info', "INFO: Facts for node >#{ name }< Removed from ENC") if @automaton.remove(facts_result, 'fact') if facts_result
       end
     end
-
   end
 
 end

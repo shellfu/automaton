@@ -14,7 +14,7 @@
 # Database Configuration
 # json support is coming soon
 #database_type: 'mongo' or 'yaml'
-database_type:  'yaml'
+database_type:  'mongo'
 
 # Mongo Configuration
 mdb_hosts:      'localhost,mongohost001b:27017,mongohost001c:27017'
@@ -24,15 +24,15 @@ replicaset:     'no'
 data_path:      '/opt/automaton/data/nodes'
 
 # Database Configuration
-database:       'nodes'
-nodecollection: 'puppet_enc'
-factcollection: 'puppet_facts'
+database:       'automaton'
+nodecollection: 'enc'
+factcollection: 'facts'
 
 # Puppet Configuration
 environment:    'production'
-inventoryurl:   'https://localhost'
+inventoryurl:   'https://puppet3'
 inventoryport:  '8140'
-enablefacts:    'false'
+enablefacts:    'true'
 
 # Logging Configuration
 logpath:        '/opt/automaton/log/automaton.log'

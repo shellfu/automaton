@@ -1,11 +1,6 @@
 require 'yaml'
 module Automaton
   class HashHelper
-    def self.pmerge
-      #rmerge = proc { |key,v1,v2| Hash === v1 && Hash === v2 ? v1.merge(v2, &rmerge) : v2 }
-      proc { |key,v1,v2| Hash === v1 && Hash === v2 ? v1.merge(v2, &pmerge) : v2 }
-    end
-
     def self.str2hash(string, delimiter, type)
       case type
         when 'class'

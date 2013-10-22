@@ -41,7 +41,7 @@ module Automaton
     end
 
     command 'add' do
-      description 'Add a node to the mongo ENC'
+      description 'Add a node to the ENC'
       on :n,:name, 'Node or Instance Name to Add', :argument => :required
       on :e,:environment, 'The Environment the node is a part of', :argument => :required
       on :c=,:classes=, 'Classes that should be applied to the node', :as => String
@@ -50,7 +50,7 @@ module Automaton
     end
 
     command 'update' do
-      description 'Update a node in the mongo ENC'
+      description 'Update a node in the ENC'
       on :n,:name, 'Node or Instance Name to Update', :argument => :required
       on :e,:environment, 'The Environment the node is a part of', :argument => :required
       on :c=,:classes=, 'Classes that should be applied to the node', :as => String
@@ -59,10 +59,10 @@ module Automaton
     end
 
     command 'remove' do
-      description 'Removes a node in the mongo ENC'
+      description 'Removes a node in the ENC'
       on :n,:name, 'Node or Instance Name to Remove', :argument => :required
-      on :c=,:classes=, 'Classes that should be removed from the node', :as => Hash
-      on :p=,:parameters=, 'Parameters that should be removed from the node', :as => Hash
+      on :c=,:classes=, 'Classes that should be removed from the node', :as => String
+      on :p=,:parameters=, 'Parameters that should be removed from the node', :as => String
     end
 
     command 'facts' do
