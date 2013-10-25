@@ -1,6 +1,6 @@
 require 'yaml'
 module Automaton
-  class HashHelper
+  class StringHelper
     def self.str2hash(string, delimiter, type)
       case type
         when 'class'

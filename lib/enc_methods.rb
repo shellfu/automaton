@@ -1,7 +1,7 @@
 require_relative '../config/config'
 require_relative 'helpers/helper'
 require_relative 'helpers/fact_helper'
-require_relative 'helpers/hash_helper'
+require_relative 'helpers/string_helper'
 require_relative 'helpers/merge_helper'
 require_relative 'log'
 require 'yaml'
@@ -10,14 +10,14 @@ module Automaton
 
   class ENCMethods
     def initialize
-      @config      = Automaton::Configure::config
-      @automaton   = Automaton::Helper::new
-      @log         = Automaton::Log
-      @hash_helper = Automaton::HashHelper
+      @config        = Automaton::Configure::config
+      @automaton     = Automaton::Helper::new
+      @log           = Automaton::Log
+      @string_helper = Automaton::StringHelper
     end
 
     def str2hash(string, delimiter, type)
-      @hash_helper.str2hash(string, delimiter, type)
+      @string_helper.str2hash(string, delimiter, type)
     end
 
     def msg(severity, msg)
