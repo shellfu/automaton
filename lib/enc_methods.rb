@@ -112,32 +112,32 @@ module Automaton
 
       # Classes
       classes = if classes
-        if classes_hash.to_s.empty?
-          str2hash(classes, '^', 'class')
-        else
-          classes_hash.deep_merge(str2hash(classes, '^', 'class'))
-        end
-      else
-        classes_hash
-      end
+                  if classes_hash.to_s.empty?
+                    str2hash(classes, '^', 'class')
+                  else
+                    classes_hash.deep_merge(str2hash(classes, '^', 'class'))
+                  end
+                else
+                  classes_hash
+                end
 
       # Parameters
       params = if parameters
-        if parameters_hash.to_s.empty?
-          str2hash(parameters, '=', 'parameter')
-        else
-          parameters_hash.deep_merge(str2hash(parameters, '=', 'parameter'))
-        end
-      else
-        parameters_hash
-      end
+                 if parameters_hash.to_s.empty?
+                   str2hash(parameters, '=', 'parameter')
+                 else
+                   parameters_hash.deep_merge(str2hash(parameters, '=', 'parameter'))
+                 end
+               else
+                 parameters_hash
+               end
 
       # Inherit
       inherits = if inherits
-        inherits.to_s
-      elsif result['inherit']
-        result['inherit']
-      end
+                   inherits.to_s
+                 elsif result['inherit']
+                   result['inherit']
+                 end
 
       # Environment
       environment = (environment.to_s.empty? and env.to_s.empty?) ? @config[:environment] : env.to_s
@@ -148,7 +148,7 @@ module Automaton
 
     def remove(name, classes = nil, parameters = nil)
       result = find(name)
-      facts_result = find_facts(name) if @config[:enablefacts] == 'true'
+      facts_result = find_facts(name) if @config[:enablefacts] == 'true' and @config[:database_type] == 'mongo'
 
       unless result
         msg('info', "INFO: Node >#{ name }< NOT found in the ENC")
@@ -156,41 +156,42 @@ module Automaton
       end
 
       if classes or parameters
-      classes = if classes
-                  str2hash(classes, '^', 'class').each_pair do |k, v|
-                    if result['enc']['classes'].key?(k)
-                      puts 'TRUE';
-                      if v.is_a? Hash then
-                        (v.each_pair do |key, value|
-                          p k; p key; p result['enc']['classes'][k];
-                          result['enc']['classes'][k].delete(key)
-                          if result['enc']['classes'][k].length == 0
-                            result['enc']['classes'][k] = nil
-                          end
-                        end)
+        classes = if classes
+                    str2hash(classes, '^', 'class').each_pair do |k, v|
+                      if result['enc']['classes'].key?(k)
+
+                        if v.is_a? Hash then
+                          (v.each_pair do |key, value|
+
+                            result['enc']['classes'][k].delete(key)
+                            if result['enc']['classes'][k].length == 0
+                              result['enc']['classes'][k] = nil
+                            end
+                          end)
+                        else
+                          result['enc']['classes'].delete(k)
+                        end
                       else
-                        result['enc']['classes'].delete(k)
+                        result['enc']['classes']
                       end
-                    else
-                      result['enc']['classes']
                     end
+                  else
+                    result['enc']['classes']
                   end
-                else
-                  result['enc']['classes']
-                end
 
 
-      parameters = if parameters and result['enc']['parameters'].include? parameters
-                result['enc']['parameters'].delete_if { |key, value| key == parameters }
-                if result['enc']['parameters'].length == 0
-                  result['enc']['parameters'] = nil
-                end
-               else
-                 msg('info', "INFO: Parameter >#{ parameters }< NOT found in >#{ name }<")
-               end
+        parameters = if parameters and result['enc']['parameters'].include? parameters
+                       result['enc']['parameters'].delete_if { |key, value| key == parameters }
+                       if result['enc']['parameters'].length == 0
+                         result['enc']['parameters'] = nil
+                       end
+                     else
+                       result['enc']['parameters']
+                     end
 
-      node = { 'enc' => { 'classes' => classes, 'parameters' => parameters } }
-      msg('info', "INFO: Class >#{ classes }< Removed from >#{ name }< in the ENC") if @automaton.save(result, node, 'node')
+        node = { 'enc' => { 'classes' => result['enc']['classes'], 'parameters' => result['enc']['parameters'] } } if @config[:database_type] == 'yaml'
+        node = { 'enc' => { 'classes' => classes, 'parameters' => parameters } } if @config[:database_type] == 'mongo'
+        msg('info', "INFO: Removed item from >#{ name }< in the ENC") if @automaton.save(result, node, 'node')
       else
         msg('info', "INFO: Node >#{ name }< Removed from ENC") if @automaton.remove(result, 'node')
         msg('info', "INFO: Facts for node >#{ name }< Removed from ENC") if @automaton.remove(facts_result, 'fact') if facts_result

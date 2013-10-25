@@ -14,7 +14,7 @@
 # Database Configuration
 # json support is coming soon
 #database_type: 'mongo' or 'yaml'
-database_type:  'mongo'
+database_type:  'yaml'
 
 # Mongo Configuration
 mdb_hosts:      'localhost,mongohost001b:27017,mongohost001c:27017'
@@ -28,7 +28,7 @@ database:       'automaton'
 nodecollection: 'enc'
 factcollection: 'facts'
 
-# Puppet Configuration
+# Puppet & Facter Configuration
 environment:    'production'
 inventoryurl:   'https://puppet3'
 inventoryport:  '8140'
