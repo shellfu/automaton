@@ -24,7 +24,7 @@ module HashRecursiveMerge
   end
 
   def convert_bson_hash
-    inject({}) { |key, value| k, v = value; key[k] = ( if v.class == BSON::OrderedHash then v.to_h else v end); key }
+    BSON::OrderedHash::to_h
   end
 
   protected
