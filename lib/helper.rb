@@ -1,6 +1,6 @@
-require_relative '../../config/config'
-require_relative 'mongo_helper'
-require_relative 'yaml_helper'
+require_relative '../config/config'
+require_relative 'backends/mongo_backend'
+require_relative 'backends/yaml_backend'
 
 module Automaton
 
@@ -12,9 +12,9 @@ module Automaton
       @dbtype = @config[:database_type]
       case @dbtype
         when 'mongo'
-          @db = Automaton::MongoHelper::new
+          @db = Automaton::Mongo_Backend::new
         when 'yaml'
-          @db = Automaton::YamlHelper::new
+          @db = Automaton::Yaml_Backend::new
         when 'json'
         # JSON NOT YET IMPLEMENTED @db = Automaton::JSONHelper::new
         else

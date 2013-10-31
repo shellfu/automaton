@@ -1,4 +1,4 @@
-require_relative '../lib/enc_methods'
+require_relative '../lib/node'
 require 'sinatra/base'
 require 'json'
 
@@ -9,11 +9,16 @@ module Automaton
       enable :logging
     end
 
-    enc = Automaton::ENCMethods::new
-
     get '/node' do
       content_type :json
-      node = enc.lookup(params[:name])
+      node = Automaton::Node::new({ :node => params[:name],
+                  :enc => {
+                      :environment => params[:environment],
+                      :classes     => params[:classes],
+                      :parameters  => params[:parameters]
+                  },
+                  :inherit => params[:inherits]
+      }).lookup
       if node == 'not_found'
         logger.error "Node >#{ params[:name] }< NOT Found in ENC"
         body "ERROR: Node >#{ params[:name] }< NOT Found in ENC"
@@ -26,7 +31,14 @@ module Automaton
 
     get '/node/facts' do
       content_type :json
-      node = enc.find_facts(params[:name])
+      node = Automaton::Node::new({ :node => params[:name],
+                                    :enc => {
+                                        :environment => params[:environment],
+                                        :classes     => params[:classes],
+                                        :parameters  => params[:parameters]
+                                    },
+                                    :inherit => params[:inherits]
+      }).find_facts(params[:name])
       if node
         status 200
         body node.to_json
@@ -38,7 +50,14 @@ module Automaton
     end
 
     post '/node/add' do
-      node = enc.add(params[:name], params[:environment], params[:classes], params[:parameters], params[:inherit])
+      node = Automaton::Node::new({ :node => params[:name],
+                                    :enc => {
+                                        :environment => params[:environment],
+                                        :classes     => params[:classes],
+                                        :parameters  => params[:parameters]
+                                    },
+                                    :inherit => params[:inherits]
+                                  }).add
       if node == 'existing_entry'
         status 404
         logger.error "Node >#{ params['name'] }< already exists in the ENC"
@@ -52,7 +71,14 @@ module Automaton
 
     post '/node/update' do
       begin
-        enc.update(params[:name], params[:environment], params[:classes], params[:parameters], params[:inherit])
+        node = Automaton::Node::new({ :node => params[:name],
+                                      :enc => {
+                                          :environment => params[:environment],
+                                          :classes     => params[:classes],
+                                          :parameters  => params[:parameters]
+                                      },
+                                      :inherit => params[:inherits]
+                                    }).update
         logger.info "Node >#{ params[:name] }< has been updated"
         body "Node >#{ params[:name] }< has been updated"
         status 200
@@ -65,7 +91,14 @@ module Automaton
 
     post '/node/remove' do
       content_type :text
-      node = enc.remove(params[:name], nil, nil)
+      node = Automaton::Node::new({ :node => params[:name],
+                                    :enc => {
+                                        :environment => params[:environment],
+                                        :classes     => params[:classes],
+                                        :parameters  => params[:parameters]
+                                    },
+                                    :inherit => params[:inherits]
+                                  }).remove
       if node == 'not_found'
         status 404
         logger.error "Node >#{ params[:name] }< NOT Found in ENC"
@@ -80,7 +113,14 @@ module Automaton
     post '/node/remove/class' do
       begin
         if params[:classes]
-          enc.remove(params[:name], params[:classes], nil)
+          node = Automaton::Node::new({ :node => params[:name],
+                                        :enc => {
+                                            :environment => params[:environment],
+                                            :classes     => params[:classes],
+                                            :parameters  => params[:parameters]
+                                        },
+                                        :inherit => params[:inherits]
+                                      }).remove
           status 200
           logger.info "Class >#{ params[:classes] }< REMOVED from the ENC"
           body "Class >#{ params[:classes] }< REMOVED from the ENC"
@@ -97,7 +137,14 @@ module Automaton
     post '/node/remove/parameter' do
       begin
         if params[:parameters]
-          enc.remove(params[:name], nil, params[:parameters])
+          node = Automaton::Node::new({ :node => params[:name],
+                                        :enc => {
+                                            :environment => params[:environment],
+                                            :classes     => params[:classes],
+                                            :parameters  => params[:parameters]
+                                        },
+                                        :inherit => params[:inherits]
+                                      }).remove
           status 200
           logger.info "Parameter >#{ params[:parameters] }< REMOVED from the ENC"
           body "Parameter >#{ params[:parameters] }< REMOVED from the ENC"

@@ -2,7 +2,7 @@ require 'net/https'
 require 'uri'
 require 'json'
 require 'timeout'
-require_relative '../log'
+require_relative 'log'
 
 module Automaton
   class NodeFacts

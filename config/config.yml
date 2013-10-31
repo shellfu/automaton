@@ -32,7 +32,7 @@ factcollection: 'facts'
 environment:    'production'
 inventoryurl:   'https://puppet3'
 inventoryport:  '8140'
-enablefacts:    'true'
+enablefacts:    'false'
 
 # Logging Configuration
 logpath:        '/opt/automaton/log/automaton.log'

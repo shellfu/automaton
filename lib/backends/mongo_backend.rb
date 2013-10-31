@@ -4,7 +4,7 @@ require 'yaml'
 
 module Automaton
 
-  class MongoHelper
+  class MongoBackend
     include Mongo
     def initialize
       @config   = Automaton::Configure::config
@@ -47,28 +47,16 @@ module Automaton
     def update(name, data, type)
       case type
         when 'node'
-          node_data = {'$set' => data}
-          @node_collection.update(name, node_data)
-          #@node_collection.update(name, data)
+          @node_collection.update({ :_id => name["_id"] }, data)
         when 'fact'
-          fact_data = {'$set' => data}
-          @fact_collection.update(name, fact_data)
+          @fact_collection.update({ :_id => name["_id"] }, fact_data)
         else
           # Gracefully Exit Add, and Log
       end
     end
 
     def save(name, data, type)
-      case type
-        when 'node'
-          node_data = {'$set' => data}
-          @node_collection.save(name, node_data)
-        when 'fact'
-          fact_data = {'$set' => data}
-          @fact_collection.save(name, fact_data)
-        else
-          # Gracefully Exit Add, and Log
-      end
+      update(name, data, type)
     end
 
     def remove(name, type)

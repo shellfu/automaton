@@ -1,18 +1,6 @@
 module HashRecursiveMerge
 
-  class BSON::OrderedHash
-    def to_h
-      inject({}) { |key, value| k, v = value; key[k] = ( if v.class == BSON::OrderedHash then v.to_h else v end); key }
-    end
 
-    def to_json
-      to_h.to_json
-    end
-
-    def to_yaml
-      to_h.to_yaml
-    end
-  end
 
   def deep_merge!(specialized_hash)
     return internal_deep_merge!(self, specialized_hash)
@@ -21,10 +9,6 @@ module HashRecursiveMerge
 
   def deep_merge(specialized_hash)
     return internal_deep_merge!(Hash.new.replace(self), specialized_hash)
-  end
-
-  def convert_bson_hash
-    BSON::OrderedHash::to_h
   end
 
   protected

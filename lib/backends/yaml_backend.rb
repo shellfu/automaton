@@ -1,6 +1,5 @@
 require_relative '../../config/config'
 require_relative '../log'
-require_relative 'node_helper'
 require 'json'
 require 'yaml'
 
@@ -8,10 +7,9 @@ module Automaton
 
   class MissingEntryError < ArgumentError; end
 
-  class YamlHelper
+  class Yaml_Backend
     def initialize
       @config      = Automaton::Configure::config
-      @node        = Automaton::NodeHelper
       Dir.mkdir(@config[:data_path]) unless Dir.exist?(@config[:data_path])
     end
 

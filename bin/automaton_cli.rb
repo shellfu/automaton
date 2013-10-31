@@ -21,7 +21,7 @@
 # email  => info@shellfu.com
 # web    => http://www.shellfu.com
 #
-require_relative '../lib/enc_methods'
+require_relative '../lib/node'
 require 'slop'
 require 'yaml'
 
@@ -77,22 +77,59 @@ module Automaton
   # ------------------------------------------
   # Command Execution
   # ------------------------------------------
-  enc = Automaton::ENCMethods::new
-  debug = true if opts.d?
+  #enc = Automaton::ENCMethods::new({} )
+  #enc = Automaton::ENCMethods::new
+  #{ 'node' => @name,
+  #  'enc' => {
+  #      'environment' => @env,
+  #      'classes'     => @classes,
+  #      'parameters'  => @params
+  #  },
+  #  'inherit' => @inherits
+  #}
+  debug   = true if opts.d?
   verbose = true if opts.v?
   Automaton::Log::from_cli(is_debug = debug, is_verbose = verbose, is_cli = true)
 
   add = opts.fetch_command(:add)
-  enc.add(add[:name], add[:environment], add[:classes], add[:parameters], add[:inherits]) if add.name?
+  Automaton::Node::new({ :node => add[:name],
+                                 :enc => {
+                                   :environment => add[:environment],
+                                   :classes     => add[:classes],
+                                   :parameters  => add[:parameters]
+                                 },
+                                 :inherit => add[:inherits]
+                             }).add if add.name?
 
   remove = opts.fetch_command(:remove)
-  enc.remove(remove[:name], remove[:classes], remove[:parameters]) if remove.name?
-
-  lookup = opts.fetch_command(:lookup)
-  puts enc.lookup(lookup[:name]).to_yaml if lookup.name?
+  Automaton::Node::new({ :node => remove[:name],
+                               :enc => {
+                                 :environment => remove[:environment],
+                                 :classes     => remove[:classes],
+                                 :parameters  => remove[:parameters]
+                               },
+                               :inherit => remove[:inherits]
+                            }).remove if remove.name?
 
   update = opts.fetch_command(:update)
-  enc.update(update[:name], update[:environment], update[:classes], update[:parameters], update[:inherits]) if update.name?
+  Automaton::Node::new({ :node => update[:name],
+                               :enc =>{
+                                 :environment => update[:environment],
+                                 :classes     => update[:classes],
+                                 :parameters  => update[:parameters],
+                               },
+                               :inherit => update[:inherits]
+                             }).update if update.name?
+
+  lookup = opts.fetch_command(:lookup)
+  puts Automaton::Node::new({ :node => lookup[:name],
+                                    :enc =>{
+                                      :environment => lookup[:environment],
+                                      :classes     => lookup[:classes],
+                                      :parameters  => lookup[:parameters],
+                                    },
+                                    :inherit => lookup[:inherits]
+                                  }).lookup.to_yaml if lookup.name?
 
   facts = opts.fetch_command(:facts)
   facts.update? ? enc.store_facts(facts[:name]) : (puts enc.find_facts(facts[:name])['facts'].to_yaml) if facts.name?
