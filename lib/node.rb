@@ -95,7 +95,7 @@ module Automaton
         msg('info', "INFO: Node >#{ @name }< NOT found in the ENC")
         return 'not_found'
       end
-      fact_result = find_facts(@name)
+      fact_result = find_facts(@name) if @config[:database_type] == 'mongo'
       remove_node = (@removal[:enc][:classes] or @removal[:enc][:parameters])
       if remove_node
         node_data = removal(@removal, @result)
