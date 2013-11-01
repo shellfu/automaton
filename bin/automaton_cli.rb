@@ -26,111 +26,90 @@ require 'slop'
 require 'yaml'
 
 module Automaton
-  # ------------------------------------------
-  # Option Parsing, and Subcommands
-  # ------------------------------------------
-  opts = Slop.new(:help=>true) do
-    banner "usage: #{$0} [command] [options]\n"
+  class CLI
 
-    on :v, :verbose, 'Enable verbose mode'
-    on :d, :debug, 'Enable debug mode'
+    def initialize
+      # Option Parsing, and Subcommands
+      @opts = Slop.new(:help=>true) do
+        banner "usage: #{$0} [command] [options]\n"
 
-    command 'lookup' do
-      description 'Look up a node by name and return class information'
-      on :n,:name, 'The name or fqdn of the node you want to lookup', :argument => :required
+        on :v, :verbose, 'Enable verbose mode'
+        on :d, :debug, 'Enable debug mode'
+
+        command 'lookup' do
+          description 'Look up a node by name and return class information'
+          on :n,:name, 'The name or FQDN of the node you want to lookup', :argument => :required
+        end
+
+        command 'add' do
+          description 'Add a node to the ENC'
+          on :n,:name, 'Node or Instance Name to Add', :argument => :required
+          on :e,:environment, 'The Environment the node is a part of', :argument => :required
+          on :c=,:classes=, 'Classes that should be applied to the node', :as => String
+          on :p=,:parameters=, 'Parameters that should be applied to the node', :as => String
+          on :i=,:inherits=, 'The Node from which to inherit classes', :as => String
+        end
+
+        command 'update' do
+          description 'Update a node in the ENC'
+          on :n,:name, 'Node or Instance Name to Update', :argument => :required
+          on :e,:environment, 'The Environment the node is a part of', :argument => :required
+          on :c=,:classes=, 'Classes that should be applied to the node', :as => String
+          on :p=,:parameters=, 'Parameters that should be applied to the node', :as => String
+          on :i=,:inherits=, 'The Node from which to inherit classes', :as => String
+        end
+
+        command 'remove' do
+          description 'Removes a node in the ENC'
+          on :n,:name, 'Node or Instance Name to Remove', :argument => :required
+          on :c=,:classes=, 'Classes that should be removed from the node', :as => String
+          on :p=,:parameters=, 'Parameters that should be removed from the node', :as => String
+        end
+
+        command 'facts' do
+          description 'Retrieves and Keeps Facts up to date'
+          on :n,:name, 'Node or Instance Name to collect facts for', :argument => :required
+          on :u,:update, 'Flag to update facts instead of retrieval'
+        end
+
+      end
+
+      # Parse Arguments
+      @opts.parse
+
+      @command     = @opts.parse[0].to_s.empty? ? @opts : @opts.parse[0].to_sym
+      @cmd         = @opts.fetch_command(@command)
+
+      # Pass debug and verbose to Log
+      debug        = true if @opts.d?
+      verbose      = true if @opts.v?
+
+      # Set from command line logging
+      Automaton::Log::from_cli(is_debug = debug, is_verbose = verbose, is_cli = true)
+
     end
 
-    command 'add' do
-      description 'Add a node to the ENC'
-      on :n,:name, 'Node or Instance Name to Add', :argument => :required
-      on :e,:environment, 'The Environment the node is a part of', :argument => :required
-      on :c=,:classes=, 'Classes that should be applied to the node', :as => String
-      on :p=,:parameters=, 'Parameters that should be applied to the node', :as => String
-      on :i=,:inherits=, 'The Node from which to inherit classes', :as => String
+    def data
+      cmd  = @opts.fetch_command(@command)
+      data = { :node => cmd[:name],
+               :enc => {
+                   :environment => cmd[:environment],
+                   :classes     => cmd[:classes],
+                   :parameters  => cmd[:parameters]
+               },
+               :inherit => cmd[:inherits]
+      }
+      return data
     end
 
-    command 'update' do
-      description 'Update a node in the ENC'
-      on :n,:name, 'Node or Instance Name to Update', :argument => :required
-      on :e,:environment, 'The Environment the node is a part of', :argument => :required
-      on :c=,:classes=, 'Classes that should be applied to the node', :as => String
-      on :p=,:parameters=, 'Parameters that should be applied to the node', :as => String
-      on :i=,:inherits=, 'The Node from which to inherit classes', :as => String
+    def classifier
+      return print Automaton::Node.new(data).send(@command.to_s).to_yaml if @command.to_s == 'lookup'
+      return Automaton::Node.new(data).send(@command.to_s) unless @cmd.nil?
+      return print @opts if @cmd.nil?
     end
 
-    command 'remove' do
-      description 'Removes a node in the ENC'
-      on :n,:name, 'Node or Instance Name to Remove', :argument => :required
-      on :c=,:classes=, 'Classes that should be removed from the node', :as => String
-      on :p=,:parameters=, 'Parameters that should be removed from the node', :as => String
-    end
-
-    command 'facts' do
-      description 'Retrieves and Keeps Facts up to date'
-      on :n,:name, 'Node or Instance Name to collect facts for', :argument => :required
-      on :u,:update, 'Flag to update facts instead of retrieval'
-    end
   end
 
-  opts.parse!
+  CLI.new.classifier
 
-  # ------------------------------------------
-  # Command Execution
-  # ------------------------------------------
-  #enc = Automaton::ENCMethods::new({} )
-  #enc = Automaton::ENCMethods::new
-  #{ 'node' => @name,
-  #  'enc' => {
-  #      'environment' => @env,
-  #      'classes'     => @classes,
-  #      'parameters'  => @params
-  #  },
-  #  'inherit' => @inherits
-  #}
-  debug   = true if opts.d?
-  verbose = true if opts.v?
-  Automaton::Log::from_cli(is_debug = debug, is_verbose = verbose, is_cli = true)
-
-  add = opts.fetch_command(:add)
-  Automaton::Node::new({ :node => add[:name],
-                                 :enc => {
-                                   :environment => add[:environment],
-                                   :classes     => add[:classes],
-                                   :parameters  => add[:parameters]
-                                 },
-                                 :inherit => add[:inherits]
-                             }).add if add.name?
-
-  remove = opts.fetch_command(:remove)
-  Automaton::Node::new({ :node => remove[:name],
-                               :enc => {
-                                 :environment => remove[:environment],
-                                 :classes     => remove[:classes],
-                                 :parameters  => remove[:parameters]
-                               },
-                               :inherit => remove[:inherits]
-                            }).remove if remove.name?
-
-  update = opts.fetch_command(:update)
-  Automaton::Node::new({ :node => update[:name],
-                               :enc =>{
-                                 :environment => update[:environment],
-                                 :classes     => update[:classes],
-                                 :parameters  => update[:parameters],
-                               },
-                               :inherit => update[:inherits]
-                             }).update if update.name?
-
-  lookup = opts.fetch_command(:lookup)
-  puts Automaton::Node::new({ :node => lookup[:name],
-                                    :enc =>{
-                                      :environment => lookup[:environment],
-                                      :classes     => lookup[:classes],
-                                      :parameters  => lookup[:parameters],
-                                    },
-                                    :inherit => lookup[:inherits]
-                                  }).lookup.to_yaml if lookup.name?
-
-  facts = opts.fetch_command(:facts)
-  facts.update? ? enc.store_facts(facts[:name]) : (puts enc.find_facts(facts[:name])['facts'].to_yaml) if facts.name?
 end

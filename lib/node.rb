@@ -75,12 +75,12 @@ module Automaton
         return JSON.parse(node['enc'].to_json)
       else
         msg('warn', "WARNING: Node >#{ @name }< NOT found in the ENC")
-        return 'not_found'
+        return '404'
       end
     end
 
     def add
-      return ('existing_entry' && msg( 'warn', "WARNING: Node >#{ @name }< exists in the ENC" ) ) if @result
+      return ('302' && msg( 'warn', "WARNING: Node >#{ @name }< exists in the ENC" ) ) if @result
       msg('info' , "INFO: Node >#{ @name }< added to the ENC.") if @automaton.add(@name, data, 'node')
       msg('info' , "Proceeding with Fact Retrieval and Storage for >#{ @name }<") if @config[:enablefacts] == 'true'
       store_facts(@name) if @config[:enablefacts] == 'true'

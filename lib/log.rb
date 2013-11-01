@@ -34,7 +34,7 @@ module Automaton
               else
                 @config[:verbose] == 'true' ? @log.info(msg) : nil
             end
-      puts msg if @is_cli
+      Logger.new(STDOUT).info(msg) if @is_cli
       log
     end
   end
