@@ -70,7 +70,7 @@
 <h2>
 <a name="-usage" class="anchor" href="#-usage"><span class="octicon octicon-link"></span></a>~$ usage</h2>
 
-<p>Both command-line and rest interfaces have very similar formats to make it easy to remember. Take note of the below delimiters when adding class parameters or top level parameters. You may add or update on class or parameter at a time or multiple additions as per below.</p>
+<p>Both command-line and rest interfaces have very similar formats to make it easy to remember. Take note of the below delimiters when adding class parameters or top level parameters. You may add or update one class or parameter at a time or multiple additions as per below.</p>
 
 <p>format for command-line and rest interfaces:</p>
 
@@ -80,14 +80,23 @@
 </ul><h3>
 <a name="-additions" class="anchor" href="#-additions"><span class="octicon octicon-link"></span></a>~$ additions</h3>
 
-<h5>
-<a name="-contributing" class="anchor" href="#-contributing"><span class="octicon octicon-link"></span></a>~$ contributing</h5>
+<p>Let's add a default node definition, add the timezone class, set the timezone class parameter. </p>
 
-<p>if you wish to contribute to automaton just send a pull request over. </p>
+<div class="highlight highlight-bash"><pre>shellfu@puppetmaster:~# automaton add -n default -c timezone^timezone<span class="o">=</span>Europe/Berlin -e production
+I, <span class="o">[</span>2013-11-02T15:16:04.662557 <span class="c">#12792]  INFO -- : Node &gt;default&lt; added to the ENC.</span>
+shellfu@puppetmaster:~# enc lookup -n default
+---
+environment: production
+classes:
+  timezone:
+    timezone: Europe/Berlin
+parameters:
+<span class="sb">``</span>
+<span class="c">##### ~$ contributing</span>
+<span class="k">if </span>you wish to contribute to automaton just send a pull request over. 
 
-<h6>
-<a name="shameless-plug-shellfucom" class="anchor" href="#shameless-plug-shellfucom"><span class="octicon octicon-link"></span></a>shameless plug <a href="http://www%3Cdot%3Eshellfu%3Cdot%3Ecom">shellfucom</a>
-</h6>
+<span class="c">###### shameless plug [shellfu&lt;dot&gt;com](http://www&lt;dot&gt;shellfu&lt;dot&gt;com)</span>
+</pre></div>
       </section>
     </div>
 
