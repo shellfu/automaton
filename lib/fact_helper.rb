@@ -24,7 +24,6 @@ module Automaton
         request['Accept'] = 'pson'
         begin
           timeout(5) do
-            Automaton::Log::msg('info', "INFO: Connecting to inventory service >#{ @config[:inventoryurl] }:#{ @config[:inventoryport] }<") if @config[:verbose] == 'true'
             JSON.parse(http.request(request).body)['values'] if http.request(request)
           end
         rescue JSON::ParserError
