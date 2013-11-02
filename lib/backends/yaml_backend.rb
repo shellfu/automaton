@@ -60,7 +60,7 @@ module Automaton
     def remove(name, type)
       path = "#{@config[:data_path]}/#{name['node']}.yaml"
       if File.exists?(path)
-        puts "Deleting File: #{ path }"
+        msg('info', "Deleting File: #{ path }")
         File.delete(path)
       else
         msg('info', "#{ path } not found")

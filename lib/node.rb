@@ -74,35 +74,34 @@ module Automaton
         node = Automaton::NodeFacts::deep_iterate(node)
         return JSON.parse(node['enc'].to_json)
       else
-        msg('warn', "WARNING: Node >#{ @name }< NOT found in the ENC")
-        return '404'
+        return msg('info', "Node >#{ @name }< NOT found in the ENC")
       end
     end
 
     def add
-      return ('302' && msg( 'warn', "WARNING: Node >#{ @name }< exists in the ENC" ) ) if @result
-      msg('info' , "INFO: Node >#{ @name }< added to the ENC.") if @automaton.add(@name, data, 'node')
-      msg('info' , "Proceeding with Fact Retrieval and Storage for >#{ @name }<") if @config[:enablefacts] == 'true'
-      store_facts(@name) if @config[:enablefacts] == 'true'
+      return 'entry_exists', '302', msg('info' , "Node Already Exists") if @result
+      return 'successful', msg('info' , "Node >#{ @name }< added to the ENC.") if @automaton.add(@name, data, 'node')
+      #msg('info' , "Proceeding with Fact Retrieval and Storage for >#{ @name }<") if @config[:enablefacts] == 'true'
+      #store_facts(@name) if @config[:enablefacts] == 'true'
     end
 
     def update
-      msg('info', "INFO: Node >#{ @name }< Updated") if @automaton.update(@result, data, 'node')
+      return 'successful', msg('info', "Node >#{ @name }< Updated") if @automaton.update(@result, data, 'node')
     end
 
     def remove
       unless @result
-        msg('info', "INFO: Node >#{ @name }< NOT found in the ENC")
+        msg('info', "Node >#{ @name }< NOT found in the ENC")
         return 'not_found'
       end
       fact_result = find_facts(@name) if @config[:database_type] == 'mongo'
       remove_node = (@removal[:enc][:classes] or @removal[:enc][:parameters])
       if remove_node
         node_data = removal(@removal, @result)
-        msg('info', "INFO: Removed item from >#{ @name }< in the ENC") if @automaton.update(@result, node_data, 'node')
+        msg('info', "Removed item from >#{ @name }< in the ENC") if @automaton.update(@result, node_data, 'node')
       else
-        msg('info', "INFO: Node >#{ @name }< Removed from ENC") if @automaton.remove(@result, 'node')
-        msg('info', "INFO: Facts for node >#{ @name }< Removed from ENC") if @automaton.remove(facts_result, 'fact') if fact_result
+        msg('info', "Node >#{ @name }< Removed from ENC") if @automaton.remove(@result, 'node')
+        msg('info', "Facts for node >#{ @name }< Removed from ENC") if @automaton.remove(facts_result, 'fact') if fact_result
       end
     end
 
@@ -113,9 +112,9 @@ module Automaton
         facts = Automaton::NodeFacts::retrieve_facts(name).to_hash
         node = (facts == {}) ? nil : {'node' => name, 'facts' => facts}
         @automaton.add(name, node, 'fact') if node
-        msg('info' , "INFO: Facts for node >#{ @name }< added to the ENC") if @automaton.add(@name, node, 'fact')
+        msg('info' , "Facts for node >#{ @name }< added to the ENC") if @automaton.add(@name, node, 'fact')
       rescue
-        msg('error', "ERROR: Facts for >#{ @name }< could not be stored") if @config[:enablefacts] == 'true'
+        msg('error', "Facts for >#{ @name }< could not be stored") if @config[:enablefacts] == 'true'
       end
     end
 

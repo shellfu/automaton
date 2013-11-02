@@ -26,6 +26,14 @@ require 'slop'
 require 'yaml'
 
 module Automaton
+  module CLIOptions
+    def self.included( app )
+      on
+    end
+  end
+end
+
+module Automaton
   class CLI
 
     def initialize
