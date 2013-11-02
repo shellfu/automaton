@@ -79,7 +79,7 @@
 </ul><h3>
 <a name="-additions" class="anchor" href="#-additions"><span class="octicon octicon-link"></span></a>~$ additions</h3>
 
-<p>Let's add a default node definition, add the timezone class, set the timezone class parameter. </p>
+<p>Let's add a default node definition, add the timezone class, set the timezone class parameter. As well as setting the environment. </p>
 
 <div class="highlight highlight-bash"><pre>shellfu@puppetmaster:~<span class="nv">$ </span>automaton add -n default -c timezone^timezone<span class="o">=</span>Europe/Berlin -e production
 I, INFO -- : Node &gt;default&lt; added to the ENC.
@@ -90,6 +90,25 @@ classes:
   timezone:
     timezone: Europe/Berlin
 parameters:
+</pre></div>
+
+<h3>
+<a name="-updates" class="anchor" href="#-updates"><span class="octicon octicon-link"></span></a>~$ updates</h3>
+
+<p>Say you forgot to add something or you need to update a node. We will update the default node and add classes &gt;<strong>foo</strong>&lt; and &gt;<strong>bar</strong>&lt; as well as top scope parameter &gt;myparameter**&lt;.</p>
+
+<div class="highlight highlight-bash"><pre>shellfu@puppetmaster:~<span class="nv">$ </span>automaton update -n default -c foo,bar -p <span class="nv">myparameter</span><span class="o">=</span>myvalue
+I, INFO -- : Node &gt;default&lt; Updated.
+shellfu@puppetmaster:~<span class="nv">$ </span>automaton lookup -n default
+---
+environment: production
+classes:
+  timezone:
+    timezone: Europe/Berlin
+  foo: 
+  bar: 
+parameters:
+  myparameter: myvalue
 </pre></div>
 
 <h5>
