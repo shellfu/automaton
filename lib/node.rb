@@ -107,7 +107,7 @@ module Automaton
 
     protected
     def store_facts(name)
-      @config[:enablefacts] = 'false' if @config[:database_type] == 'yaml'
+      @config[:enablefacts] = 'false' if @config[:database_type] =~ /(yaml|json)/
       begin
         facts = Automaton::NodeFacts::retrieve_facts(name).to_hash
         node = (facts == {}) ? nil : {'node' => name, 'facts' => facts}

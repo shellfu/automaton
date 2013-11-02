@@ -1,6 +1,7 @@
 require_relative '../config/config'
 require_relative 'backends/mongo_backend'
 require_relative 'backends/yaml_backend'
+require_relative 'backends/json_backend'
 
 module Automaton
 
@@ -12,13 +13,13 @@ module Automaton
       @dbtype = @config[:database_type]
       case @dbtype
         when 'mongo'
-          @db = Automaton::Mongo_Backend::new
+          @db = Automaton::MongoBackend::new
         when 'yaml'
-          @db = Automaton::Yaml_Backend::new
+          @db = Automaton::YamlBackend::new
         when 'json'
-        # JSON NOT YET IMPLEMENTED @db = Automaton::JSONHelper::new
+          @db = Automaton::JSONBackend::new
         else
-          # ADD Graceful exit and proper logging.
+          raise "#{@dbtype} not yet implemented. Perhaps you can write one, and submit a pull request"
       end
     end
 

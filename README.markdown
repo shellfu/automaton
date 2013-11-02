@@ -26,6 +26,7 @@ _If you wish to contribute to automaton just send a pull request over. You can a
 * Database or Flat-File Storage
     * MongoDB
     * YAML
+    * JSON
 
 #### RoadMap:
 * JSON Flat File Support

@@ -13,7 +13,7 @@
 
 # Database Configuration
 # json support is coming soon
-#database_type: 'mongo' or 'yaml'
+#database_type: 'mongo' or 'yaml' or 'json'
 database_type:  'yaml'
 
 # Mongo Configuration
