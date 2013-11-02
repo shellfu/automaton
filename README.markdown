@@ -1,6 +1,5 @@
 # ~$ automaton
-
-http://shellfu.com/2013/06/automaton-an-external-node-classifier-for-puppet/  
+[![Code Climate](https://codeclimate.com/github/shellfu/automaton.png)](https://codeclimate.com/github/shellfu/automaton)
 
 Automaton is an external node classifier for puppet. Its goal is to ease the creation of node definitions, and support a variety of data backends.
 
