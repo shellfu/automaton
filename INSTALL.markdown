@@ -13,7 +13,7 @@ The command-line interface is what puppet will use to classify nodes via it's no
 ```
 
 ###### edit config/config.yaml and optionally link automaton to /usr/bin:
-The config.yml file is documented, and is straight forward. Simply enter your environment specific settings, and save the file. If you are using *:database_type = 'yaml'* then you can create your data path now, or automaton will do this for you. It's entirely up to you. 
+The config.yml file is documented, and is straight forward. Simply enter your environment specific settings, and save the file. If you are using **:database_type = 'yaml'** then you can create your data path now, or automaton will do this for you. It's entirely up to you. 
 ```bash
 [shellfu@automaton automaton]$ vim config/config.yml
 [shellfu@automaton automaton]$ sudo ln -s /usr/bin/automaton /opt/automaton/bin/automaton_cli.rb
