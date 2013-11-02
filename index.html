@@ -82,9 +82,9 @@
 
 <p>Let's add a default node definition, add the timezone class, set the timezone class parameter. </p>
 
-<div class="highlight highlight-bash"><pre>shellfu@puppetmaster:~# automaton add -n default -c timezone^timezone<span class="o">=</span>Europe/Berlin -e production
+<div class="highlight highlight-bash"><pre>shellfu@puppetmaster:~<span class="nv">$ </span>automaton add -n default -c timezone^timezone<span class="o">=</span>Europe/Berlin -e production
 I, <span class="o">[</span>2013-11-02T15:16:04.662557 <span class="c">#12792]  INFO -- : Node &gt;default&lt; added to the ENC.</span>
-shellfu@puppetmaster:~# enc lookup -n default
+shellfu@puppetmaster:~<span class="nv">$ </span>automaton lookup -n default
 ---
 environment: production
 classes:
