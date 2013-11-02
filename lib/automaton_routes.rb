@@ -19,9 +19,7 @@ module Sinatra
           node = Automaton::Node.new(data).send(params[:captures][0])
           return status(200), body( log('info',">#{params[:name]}< updated") ) if node[0] == 'successful'
           return status(409), body( log('warning', ">#{params[:name]}< exists") ) if node[0] == 'entry_exists'
-        rescue => e
-          p e.message
-          p e.backtrace
+        rescue
           return status(500), body( log('error', 'Check node for validity') )
         end
       end
