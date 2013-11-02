@@ -67,20 +67,22 @@
 <h2>
 <a name="-usage" class="anchor" href="#-usage"><span class="octicon octicon-link"></span></a>~$ usage</h2>
 
-<p>Both command-line and rest interfaces have very similar formats to make it easy to remember. Take note of the below delimiters when adding class parameters or top level parameters. You may add or update one class or parameter at a time or multiple additions as per below.</p>
+<p>Both command-line and rest interfaces have very similar formats to make it easy to remember. Take note of the below delimiters when adding class parameters or top level parameters. You may add or update one class or parameter at a time or multiple additions as per below. </p>
 
-<p>format for command-line and rest interfaces:</p>
+<p>The delimiters for classes and parameters is a &gt;<strong>,</strong>&lt;(comma). While the delimiter for class parameters is a &gt;<strong>^</strong>&lt;(carrot). This is the format for command-line and rest interfaces:</p>
 
 <ul>
-<li>for class parameters you specify like: class1^parameter=value,class2,class3</li>
-<li>for top parameters you specify like:   key=value,key1=value</li>
+<li>for class parameters you specify like: <strong>class1^parameter=value,class2,class3</strong>
+</li>
+<li>for top parameters you specify like:   <strong>key=value,key1=value</strong>
+</li>
 </ul><h3>
 <a name="-additions" class="anchor" href="#-additions"><span class="octicon octicon-link"></span></a>~$ additions</h3>
 
 <p>Let's add a default node definition, add the timezone class, set the timezone class parameter. </p>
 
 <div class="highlight highlight-bash"><pre>shellfu@puppetmaster:~<span class="nv">$ </span>automaton add -n default -c timezone^timezone<span class="o">=</span>Europe/Berlin -e production
-I, <span class="o">[</span>2013-11-02T15:16:04.662557 <span class="c">#12792]  INFO -- : Node &gt;default&lt; added to the ENC.</span>
+I, INFO -- : Node &gt;default&lt; added to the ENC.
 shellfu@puppetmaster:~<span class="nv">$ </span>automaton lookup -n default
 ---
 environment: production
