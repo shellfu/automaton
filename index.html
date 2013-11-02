@@ -67,7 +67,7 @@
 <h2>
 <a name="-usage" class="anchor" href="#-usage"><span class="octicon octicon-link"></span></a>~$ usage</h2>
 
-<p>Both command-line and rest interfaces have very similar formats to make it easy to remember. Take note of the below delimiters when adding class parameters or top level parameters. You may add or update one class or parameter at a time or multiple additions as per below. </p>
+<hr><p>Both command-line and rest interfaces have very similar formats to make it easy to remember. Take note of the below delimiters when adding class parameters or top level parameters. You may add or update one class or parameter at a time or multiple additions as per below. </p>
 
 <p>The delimiters for classes and parameters is a &gt;<strong>,</strong>&lt;(comma). While the delimiter for class parameters is a &gt;<strong>^</strong>&lt;(carrot). This is the format for command-line and rest interfaces:</p>
 
@@ -95,7 +95,7 @@ parameters:
 <h3>
 <a name="-updates" class="anchor" href="#-updates"><span class="octicon octicon-link"></span></a>~$ updates</h3>
 
-<p>Say you forgot to add something or you need to update a node. We will update the default node and add classes &gt;<strong>foo</strong>&lt; and &gt;<strong>bar</strong>&lt; as well as top scope parameter &gt;myparameter**&lt;.</p>
+<p>Say you forgot to add something or you need to update a node. We will update the default node and add classes &gt;<strong>foo</strong>&lt; and &gt;<strong>bar</strong>&lt; as well as top scope parameter &gt;//myparameter**&lt;.</p>
 
 <div class="highlight highlight-bash"><pre>shellfu@puppetmaster:~<span class="nv">$ </span>automaton update -n default -c foo,bar -p <span class="nv">myparameter</span><span class="o">=</span>myvalue
 I, INFO -- : Node &gt;default&lt; Updated.
@@ -147,7 +147,7 @@ parameters:
   myparameter: myvalue
 </pre></div>
 
-<h5>
+<hr><h5>
 <a name="-contributing" class="anchor" href="#-contributing"><span class="octicon octicon-link"></span></a>~$ contributing</h5>
 
 <p>if you wish to contribute to automaton just send a pull request over. </p>
