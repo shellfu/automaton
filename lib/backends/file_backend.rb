@@ -41,7 +41,8 @@ module Automaton
     # Update the node object to the database.
     def update(name, data, type)
       path = "#{@config[:data_path]}/#{name['node']}.#{ @filetype }"
-      File.open(path, 'w') { |f| f.write(data.send(@to_filetype)) }
+      File.open(path, 'w') { |f| f.write(data.to_json) } if @filetype == 'json'
+      File.open(path, 'w') { |f| f.write(data.to_yaml) } if @filetype == 'yaml'
     end
 
     # save the node object to the database.
@@ -86,6 +87,7 @@ module Automaton
       begin
         data = JSON.load(path) if @filetype == 'json'
         data = YAML.load_file(path) if @filetype == 'yaml'
+        puts data
         data.merge!(data) if data
       rescue ArgumentError => e
         msg('error', "Could not load >#{name}<: >#{e.msg}<")
