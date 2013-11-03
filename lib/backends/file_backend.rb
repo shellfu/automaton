@@ -34,7 +34,7 @@ module Automaton
     # Create a new entry.
     def add(name, data, type)
       path = "#{@config[:data_path]}/#{ name }.#{ @filetype }"
-      h = data.to_hash.to_json
+      h = (@filetype == 'json') ? data.to_hash.to_json : data.to_hash.to_yaml
       File.open("#{@config[:data_path]}/#{ name }.#{ @filetype }", 'w+') { |f| f.write(h) } unless File.exists?(path)
     end
 
@@ -87,7 +87,6 @@ module Automaton
       begin
         data = JSON.load(path) if @filetype == 'json'
         data = YAML.load_file(path) if @filetype == 'yaml'
-        puts data
         data.merge!(data) if data
       rescue ArgumentError => e
         msg('error', "Could not load >#{name}<: >#{e.msg}<")
