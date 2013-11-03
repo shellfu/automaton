@@ -23,7 +23,7 @@ replicaset:     'no'
 # Flat File Configuration
 data_path:      '/opt/automaton/data/nodes'
 
-# Database Configuration
+# Database Configuration if using MongoDB
 database:       'automaton'
 nodecollection: 'enc'
 factcollection: 'facts'

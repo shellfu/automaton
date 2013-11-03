@@ -1,7 +1,6 @@
 require_relative '../config/config'
 require_relative 'backends/mongo_backend'
-require_relative 'backends/yaml_backend'
-require_relative 'backends/json_backend'
+require_relative 'backends/file_backend'
 
 module Automaton
 
@@ -14,12 +13,10 @@ module Automaton
       case @dbtype
         when 'mongo'
           @db = Automaton::MongoBackend::new
-        when 'yaml'
-          @db = Automaton::YamlBackend::new
-        when 'json'
-          @db = Automaton::JSONBackend::new
+        when /(json|yaml)/
+          @db = Automaton::FileBackend::new
         else
-          raise "#{@dbtype} not yet implemented. Perhaps you can write one, and submit a pull request"
+          raise "#{@dbtype} not yet implemented. Perhaps you can write one, and submit a pull request?"
       end
     end
 
