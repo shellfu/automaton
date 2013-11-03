@@ -9,6 +9,8 @@
 #   1) You do not need to create the collections before hand.
 #   2) If you use a ReplicaSet then set the following => replicaset: no
 #      otherwise ONLY THE FIRST HOST will be used
+#   3) Puppet Inventory Service MUST be setup on the puppetmaster in order
+#      to use facter fact interpolation in ENC data.
 #
 
 # Database Configuration
@@ -29,6 +31,7 @@ nodecollection: 'enc'
 factcollection: 'facts'
 
 # Puppet & Facter Configuration
+# Inventory Service must be setup on the puppet master in order to use fact interpolation
 environment:    'production'
 inventoryurl:   'https://puppet3'
 inventoryport:  '8140'
