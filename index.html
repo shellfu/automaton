@@ -66,89 +66,11 @@
 <p>for detailed installation instructions please proceed to the &gt;<a href="https://github.com/shellfu/automaton/blob/master/INSTALL.markdown">install.markdown</a>&lt; file in the automaton github repository.</p>
 
 <h2>
-<a name="-usage" class="anchor" href="#-usage"><span class="octicon octicon-link"></span></a>~$ usage</h2>
-
-<hr><p>Both command-line and rest interfaces have very similar formats to make it easy to remember. Take note of the below delimiters when adding class parameters or top level parameters. You may add or update one class or parameter at a time or multiple additions as per below. </p>
-
-<p>The delimiters for classes and parameters is a &gt;<strong>,</strong>&lt;(comma). While the delimiter for class parameters is a &gt;<strong>^</strong>&lt;(carrot). This is the format for command-line and rest interfaces:</p>
+<a name="-documentation" class="anchor" href="#-documentation"><span class="octicon octicon-link"></span></a>~$ documentation</h2>
 
 <ul>
-<li>for class parameters you specify like: <strong>class1^parameter=value,class2,class3</strong>
-</li>
-<li>for top parameters you specify like:   <strong>key=value,key1=value</strong>
-</li>
-</ul><h3>
-<a name="-additions" class="anchor" href="#-additions"><span class="octicon octicon-link"></span></a>~$ additions</h3>
-
-<p>Let's add a default node definition, add the timezone class, set the timezone class parameter. As well as setting the environment. </p>
-
-<div class="highlight highlight-bash"><pre>shellfu@puppetmaster:~<span class="nv">$ </span>automaton add -n default -c timezone^timezone<span class="o">=</span>Europe/Berlin -e production
-I, INFO -- : Node &gt;default&lt; added to the ENC.
-shellfu@puppetmaster:~<span class="nv">$ </span>automaton lookup -n default
----
-environment: production
-classes:
-  timezone:
-    timezone: Europe/Berlin
-parameters:
-</pre></div>
-
-<h3>
-<a name="-updates" class="anchor" href="#-updates"><span class="octicon octicon-link"></span></a>~$ updates</h3>
-
-<p>Say you forgot to add something or you need to update a node. We will update the default node and add classes &gt;<strong>foo</strong>&lt; and &gt;<strong>bar</strong>&lt; as well as top scope parameter &gt;<strong>myparameter</strong>&lt;.</p>
-
-<div class="highlight highlight-bash"><pre>shellfu@puppetmaster:~<span class="nv">$ </span>automaton update -n default -c foo,bar -p <span class="nv">myparameter</span><span class="o">=</span>myvalue
-I, INFO -- : Node &gt;default&lt; Updated.
-shellfu@puppetmaster:~<span class="nv">$ </span>automaton lookup -n default
----
-environment: production
-classes:
-  timezone:
-    timezone: Europe/Berlin
-  foo: 
-  bar: 
-parameters:
-  myparameter: myvalue
-</pre></div>
-
-<h3>
-<a name="-removals" class="anchor" href="#-removals"><span class="octicon octicon-link"></span></a>~$ removals</h3>
-
-<p>Removing a class, parameter or class parameter is as easy as additions or updates save one difference. You cannot remove multiple classes, multiple parameters or multiple class parameters. You can remove a class and a top scope parameter at the same time however.</p>
-
-<p>Taking the following node definition we've been working with, let's remove class foo's class parameter, but before we do we will take a quick look at the definition as it stands.</p>
-
-<div class="highlight highlight-bash"><pre>shellfu@puppetmaster:~<span class="nv">$ </span>automaton lookup -n default
----
-environment: production
-classes:
-  timezone:
-    timezone: Europe/Berlin
-  foo:
-    fooparam: value 
-  bar: 
-parameters:
-  myparameter: myvalue
-</pre></div>
-
-<p>Now for the actual removal, followed by another lookup on the node definition to see the result:</p>
-
-<div class="highlight highlight-bash"><pre>shellfu@puppetmaster:~<span class="nv">$ </span>automaton remove -n default -c foo^fooparam
-I, INFO -- : Removed item from &gt;default&lt; in the ENC
-shellfu@puppetmaster:~<span class="nv">$ </span>automaton lookup -n default
----
-environment: production
-classes:
-  timezone:
-    timezone: Europe/Berlin
-  foo:
-  bar: 
-parameters:
-  myparameter: myvalue
-</pre></div>
-
-<hr><h5>
+<li><a href="https://github.com/shellfu/automaton/wiki/usage_basic">Basic Usage</a></li>
+</ul><h5>
 <a name="-contributing" class="anchor" href="#-contributing"><span class="octicon octicon-link"></span></a>~$ contributing</h5>
 
 <p>if you wish to contribute to automaton just send a pull request over. </p>
