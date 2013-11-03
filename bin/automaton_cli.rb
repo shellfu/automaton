@@ -37,8 +37,23 @@ module Automaton
   class CLI
 
     def initialize
+      command_array = ['add', 'update', 'remove']
       # Option Parsing, and Subcommands
       @opts = Slop.new(:help=>true) do
+
+        command_block = Proc.new {
+          command_array.each do |ele|
+            command ele do
+              description "#{ele} a node or element"
+              on :n,:name, "Node or Instance Name to #{ele}", :argument => :required
+              on :e,:environment, 'The Environment the node is a part of', :argument => :required
+              on :c=,:classes=, 'Classes that should be applied to the node', :as => String
+              on :p=,:parameters=, 'Parameters that should be applied to the node', :as => String
+              on :i=,:inherits=, 'The Node from which to inherit classes', :as => String
+            end
+          end
+        }
+
         banner "usage: #{$0} [command] [options]\n"
 
         on :v, :verbose, 'Enable verbose mode'
@@ -49,30 +64,7 @@ module Automaton
           on :n,:name, 'The name or FQDN of the node you want to lookup', :argument => :required
         end
 
-        command 'add' do
-          description 'Add a node to the ENC'
-          on :n,:name, 'Node or Instance Name to Add', :argument => :required
-          on :e,:environment, 'The Environment the node is a part of', :argument => :required
-          on :c=,:classes=, 'Classes that should be applied to the node', :as => String
-          on :p=,:parameters=, 'Parameters that should be applied to the node', :as => String
-          on :i=,:inherits=, 'The Node from which to inherit classes', :as => String
-        end
-
-        command 'update' do
-          description 'Update a node in the ENC'
-          on :n,:name, 'Node or Instance Name to Update', :argument => :required
-          on :e,:environment, 'The Environment the node is a part of', :argument => :required
-          on :c=,:classes=, 'Classes that should be applied to the node', :as => String
-          on :p=,:parameters=, 'Parameters that should be applied to the node', :as => String
-          on :i=,:inherits=, 'The Node from which to inherit classes', :as => String
-        end
-
-        command 'remove' do
-          description 'Removes a node in the ENC'
-          on :n,:name, 'Node or Instance Name to Remove', :argument => :required
-          on :c=,:classes=, 'Classes that should be removed from the node', :as => String
-          on :p=,:parameters=, 'Parameters that should be removed from the node', :as => String
-        end
+        command_block.call
 
         command 'facts' do
           description 'Retrieves and Keeps Facts up to date'
