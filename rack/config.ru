@@ -1,2 +1,2 @@
-require_relative '../bin/automaton'
+require '/opt/automaton/bin/automaton'
 run Automaton::ENC
