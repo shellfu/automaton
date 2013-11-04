@@ -45,6 +45,9 @@ bit easier.
 * a group system. cli,rest (it exists but isnt very apparent, and needs fleshing out)
 * configurable metadata storage (to be a bolt on/plugin)
 * documentation on writing a plugin
+* auditing
+* data backups via tarballs. If using mongodb i'll probably leave the backup strategy to you. Unless enough noise is made
+  naturally.
 
 ## ~$ documentation
 * [basic usage](https://github.com/shellfu/automaton/wiki/usage::basic)
