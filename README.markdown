@@ -46,6 +46,7 @@ bit easier.
 
 ## ~$ documentation
 * [basic usage](https://github.com/shellfu/automaton/wiki/usage::basic)
+* [fact interpolation](https://github.com/shellfu/automaton/wiki/usage::topic::facter)
 * [installation => command-line interface](https://github.com/shellfu/automaton/wiki/installation::command-line_interface)
 * [installation => rest interface](https://github.com/shellfu/automaton/wiki/Installation::rest-interface)
 
