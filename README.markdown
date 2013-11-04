@@ -7,7 +7,7 @@ automaton is a lightweight external node classifier for puppet that supports mul
 #### ~$ features
 * command-line interface
 * rest interface
-* multi-node inheritance
+* multi-node inheritance compressed to single hash
 * parameterized classes
 * node fact storage via puppet's inventory service
 * facter fact interpolation
