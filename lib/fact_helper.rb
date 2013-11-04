@@ -49,7 +49,7 @@ module Automaton
             #puts "key: #{k} value: #{v}"
             if v =~ /(?<=\{)(.*?)(?=\})/
               @fact_name = v.match(/(?<=\{)(.*?)(?=\})/) {|m| m.to_s}.sub(%r{^::}, '')
-              value      = v.gsub(/\$\{.*\}/, ( if @fact_hash[@fact_name] then @fact_hash[@fact_name] else 'undef_(chk inv service on pm)' end))
+              value      = v.gsub(/%\{.*\}/, ( if @fact_hash[@fact_name] then @fact_hash[@fact_name] else 'undef_(chk inv service on pm)' end))
               hash[k]    = value
             end
           end
