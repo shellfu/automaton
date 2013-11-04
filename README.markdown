@@ -41,7 +41,8 @@ bit easier.
     * json
 
 #### ~$ roadmap
-* A group system. CLI,REST (it exists but isnt very apparent, and needs fleshing out)
+* expand ability to modify hiera data (limited to hiera, and automaton sharing data dirs right now)
+* a group system. cli,rest (it exists but isnt very apparent, and needs fleshing out)
 * configurable metadata storage (to be a bolt on/plugin)
 * documentation on writing a plugin
 
