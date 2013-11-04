@@ -28,9 +28,9 @@ bit easier.
 
 
 #### ~$ features
-* command-line interface
 * rest interface
-* multi-node inheritance compressed to single hash
+* command-line interface
+* multi-node inheritance
 * parameterized classes
 * node fact storage via puppet's inventory service
 * facter fact interpolation
