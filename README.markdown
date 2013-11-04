@@ -41,6 +41,7 @@ bit easier.
     * json
 
 #### ~$ roadmap
+* A group system. CLI,REST (it exists but isnt very apparent, and needs fleshing out)
 * configurable metadata storage (to be a bolt on/plugin)
 * documentation on writing a plugin
 
