@@ -41,13 +41,11 @@ bit easier.
     * json
 
 #### ~$ roadmap
-* expand ability to modify hiera data (limited to hiera, and automaton sharing data dirs right now)
-* a group system. cli,rest (it exists but isnt very apparent, and needs fleshing out)
-* configurable metadata storage (to be a bolt on/plugin)
+* expand ability to modify hiera data _(limited to hiera, and automaton sharing data dirs right now)_
+* a group system. cli,rest _(it exists but isnt very apparent, and needs fleshing out)_
+* configurable metadata storage _(to be a bolt on/plugin)_
 * documentation on writing a plugin
-* auditing
-* data backups via tarballs. If using mongodb i'll probably leave the backup strategy to you. Unless enough noise is made
-  naturally.
+* auditing _(maybe things like ticket number or something. will think on this)_
 
 ## ~$ documentation
 * [basic usage](https://github.com/shellfu/automaton/wiki/usage::basic)
