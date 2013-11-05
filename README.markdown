@@ -42,6 +42,12 @@ bit easier.
 
 #### ~$ roadmap
 * expand ability to modify hiera data _(limited to hiera, and automaton sharing data dirs right now)_
+    * this is experimental, and ill push upstream if people show interest. 
+    * it takes the nested hash that is generated, and flattens it, appending scope on the keys. at that point hiera can
+      lookup the data.
+    * my main goal however is to expand this to modify any hiera flat files, but for now is limited to automaton's data
+      format. that way it can be used as a tool to modify heira data with cli or rest interface. again I need to see how
+      much interest there is for this.
 * a group system. cli,rest _(it exists but isnt very apparent, and needs fleshing out)_
 * configurable metadata storage _(to be a bolt on/plugin)_
 * documentation on writing a plugin
