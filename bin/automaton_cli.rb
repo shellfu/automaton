@@ -29,7 +29,9 @@ module Automaton
   class CLI
 
     def initialize
+      @command_options = ARGV[1].to_s
       command_array = ['add', 'update', 'remove']
+
       # Option Parsing, and Subcommands
       @opts = Slop.new(:help=>true) do
 
@@ -70,11 +72,13 @@ module Automaton
       @opts.parse
 
       @command     = @opts.parse[0].to_s.empty? ? @opts : @opts.parse[0].to_sym
+      @cmd_opt     = @opts.parse[1].to_s.empty? ? @opts : @opts.parse[1].to_s
       @cmd         = @opts.fetch_command(@command)
 
       # Pass debug and verbose to Log
       debug        = true if @opts.d?
       verbose      = true if @opts.v?
+
 
       # Set from command line logging
       Automaton::Log::from_cli(is_debug = debug, is_verbose = verbose, is_cli = true)
@@ -95,9 +99,10 @@ module Automaton
     end
 
     def classifier
+      return print "#{@opts}\n" if @command_options.empty?
+      return if @command_options == "-h" || @command_options == "--help"
       return print Automaton::Node.new(data).send(@command.to_s).to_yaml if @command.to_s == 'lookup'
       return Automaton::Node.new(data).send(@command.to_s) unless @cmd.nil?
-      return print @opts if @cmd.nil?
     end
 
   end
