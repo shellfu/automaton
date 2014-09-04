@@ -71,18 +71,16 @@ module Automaton
       # Parse Arguments
       @opts.parse
 
+      #Set Commands
       @command     = @opts.parse[0].to_s.empty? ? @opts : @opts.parse[0].to_sym
-      @cmd_opt     = @opts.parse[1].to_s.empty? ? @opts : @opts.parse[1].to_s
       @cmd         = @opts.fetch_command(@command)
 
-      # Pass debug and verbose to Log
+      #Set Global Options
       debug        = true if @opts.d?
       verbose      = true if @opts.v?
 
-
       # Set from command line logging
       Automaton::Log::from_cli(is_debug = debug, is_verbose = verbose, is_cli = true)
-
     end
 
     def data
