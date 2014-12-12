@@ -8,11 +8,15 @@ module Automaton
     include Mongo
     def initialize
       @config   = Automaton::Configure::config
-
+      @log      = Automaton::Log
       # Connect to Mongo
       @hosts    = @config[:mdb_hosts].split(',')
-      @client   = @config[:replicaset] == 'yes' ? MongoReplicaSetClient.new(@hosts) : MongoClient.new(@hosts[0])
+      host,port = @hosts[0].split(':')
+      @client   = (@config[:replicaset] == 'yes') ? MongoReplicaSetClient.new(@hosts) : MongoClient.new(host, port)
       @database = @client[@config[:database]]
+
+      # Authenticate, if set
+      @database.authenticate(@config[:username], @config[:password]) if @config.has_key? :username
 
       # Set collection names
       @node_collection = @database[@config[:nodecollection]]
@@ -40,7 +44,7 @@ module Automaton
         when 'fact'
           @fact_collection.insert(data)
         else
-          # Gracefully Exit Add, and Log
+          @log.msg('warn',"#{type} is not supported")
       end
     end
 
@@ -49,9 +53,9 @@ module Automaton
         when 'node'
           @node_collection.update({ :_id => name["_id"] }, data)
         when 'fact'
-          @fact_collection.update({ :_id => name["_id"] }, fact_data)
+          @fact_collection.update({ :_id => name["_id"] }, data)
         else
-          # Gracefully Exit Add, and Log
+          @log.msg('warn',"#{type} is not supported")
       end
     end
 
@@ -66,7 +70,7 @@ module Automaton
         when 'fact'
           @fact_collection.remove(name)
         else
-          # Gracefully Exit Add, and Log
+          @log.msg('warn',"#{type} is not supported")
       end
     end
 

@@ -14,31 +14,31 @@
 #
 
 # Database Configuration
-# json support is coming soon
 #database_type: 'mongo' or 'yaml' or 'json'
-database_type:  'yaml'
+database_type:  'mongo'
 
 # Mongo Configuration
-mdb_hosts:      'localhost,mongohost001b:27017,mongohost001c:27017'
+mdb_hosts:      '10.40.30.60:9969,mongohost001b:27017,mongohost001c:27017'
 replicaset:     'no'
-
-# Flat File Configuration
-data_path:      '/opt/automaton/data/nodes'
-
-# Database Configuration if using MongoDB
+#username:       ''
+#password:       ''
 database:       'automaton'
 nodecollection: 'enc'
 factcollection: 'facts'
 
+# Flat File Configuration
+data_path:      '/home/shellfu/opt/nodes'
+
 # Puppet & Facter Configuration
 # Inventory Service must be setup on the puppet master in order to use fact interpolation
 environment:    'production'
-inventoryurl:   'https://puppet3'
+inventoryurl:   'https://10.40.30.163'
 inventoryport:  '8140'
-enablefacts:    'false'
+enablefacts:    'true'
 
 # Logging Configuration
-logpath:        '/opt/automaton/log/automaton.log'
+logpath:        '/home/shellfu/var/logs/automaton.log'
 enablelog:      'true'
 verbose:        'false'
 debug:          'false'
+

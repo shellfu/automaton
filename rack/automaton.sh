@@ -19,6 +19,7 @@ ENVIRONMENT=production
 APP_ROOT=/opt/automaton
 PID=/var/run/automaton/automaton_unicorn.pid
 CMD="unicorn -D -E $ENVIRONMENT -c $APP_ROOT/rack/automaton.conf"
+PROCESS_MONITOR="eye"
 #INIT_CONF=$APP_ROOT/rack/automaton.conf
 action="$1"
 set -u
@@ -40,8 +41,8 @@ oldsig () {
 case $action in
 start)
 	sig 0 && echo >&2 "Already running" && exit 0
-	$CMD
-	bluepill load $APP_ROOT/rack/automaton.pill
+	$PROCESS_MONITOR load ${APP_ROOT}/rack/automaton.eye
+	$PROCESS_MONITOR start automaton
 	;;
 stop)
 	sig QUIT && exit 0
@@ -80,10 +81,9 @@ reopen-logs)
 	sig USR1
 	;;
 status)
-	bluepill automaton status unicorn
-	;;
-child)
-	bluepill automaton status
+	if [ ${PROCESS_MONITOR} == "eye" ]; then
+	  eye info automaton
+	fi
 	;;
 *)
 	echo >&2 "Usage: $0 <start|stop|restart|upgrade|status|child|force-stop|reopen-logs>"

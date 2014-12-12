@@ -24,6 +24,7 @@ module Automaton
       @removal   = options
     end
 
+
     def data
       { 'node' => @name,
         'enc' => {
@@ -35,61 +36,75 @@ module Automaton
       }
     end
 
+
+    def facts
+      msg('info' , "Proceeding with Fact Retrieval and Storage for >#{ @name }<") if @config[:enablefacts] == 'true'
+      store_facts(@name) if @config[:enablefacts] == 'true'
+    end
+
+
     def msg(severity, msg)
       @log.msg(severity, msg)
     end
+
 
     def find(name)
       @automaton.find(name)
     end
 
+
     def find_facts(name)
       @automaton.find_facts(name)
     end
 
+
     def find_inheritance(name)
       final_hash = {}
-      result = find(name)
       final_hash['enc'] = {} if final_hash['enc'].nil?
-      if result.has_key?('inherit') and not result['inherit'].to_s.empty?
-        child = find_inheritance(result['inherit'])
-        child.deep_merge(result['enc'])
-        final_hash['enc'].deep_merge(child)
-      else
-        final_hash['enc'].deep_merge(result['enc'])
+      result = find(name)
+      if result and result.has_key?('inherit') and not result['inherit'].to_s.empty?
+        begin
+          child = find_inheritance(result['inherit'])
+          child.deep_merge(result['enc'])
+          final_hash['enc'].deep_merge(child)
+	      rescue
+	        msg('to_file', "node: '#{ @inherits }' not_found for child node '#{ @name }' (Action: add node: #{ @inherits } to the ENC)")
+          return @result['enc'] 
+        end
+      else 
+        return final_hash['enc'].deep_merge(result['enc'])
       end
     end
+
 
     def lookup
       if @result
         node                = @result
-        node['enc']         = find_inheritance(@name)
+        inheritance         = find_inheritance(@name)
         environment         = @result['enc']['environment']
         node['environment'] = environment unless environment.to_s.empty?
-
-        # In the event inherited node isn't found
-        # Log that it wasn't found, and set to result['enc']
-        #if node['enc'] == nil and it has key inherit
-        #  node['enc'] = result['enc']
-        #end
-
-        node = Automaton::NodeFacts::deep_iterate(node)
+        if inheritance
+          node['enc'] = inheritance
+        else
+          node['enc'] = @result['enc']
+        end
         return JSON.parse(node['enc'].to_json)
-      else
-        return msg('info', "Node >#{ @name }< NOT found in the ENC")
+      else 
+	      return msg('info', "Node >#{ @name }< NOT found in the ENC")
       end
     end
+
 
     def add
       return 'entry_exists', '302', msg('info' , "Node Already Exists") if @result
       return 'successful', msg('info' , "Node >#{ @name }< added to the ENC.") if @automaton.add(@name, data, 'node')
-      #msg('info' , "Proceeding with Fact Retrieval and Storage for >#{ @name }<") if @config[:enablefacts] == 'true'
-      #store_facts(@name) if @config[:enablefacts] == 'true'
     end
+
 
     def update
       return 'successful', msg('info', "Node >#{ @name }< Updated") if @automaton.update(@result, data, 'node')
     end
+
 
     def remove
       unless @result
@@ -107,14 +122,15 @@ module Automaton
       end
     end
 
+
     protected
     def store_facts(name)
       @config[:enablefacts] = 'false' if @config[:database_type] =~ /(yaml|json)/
       begin
         facts = Automaton::NodeFacts::retrieve_facts(name).to_hash
         node = (facts == {}) ? nil : {'node' => name, 'facts' => facts}
-        @automaton.add(name, node, 'fact') if node
-        msg('info' , "Facts for node >#{ @name }< added to the ENC") if @automaton.add(@name, node, 'fact')
+        update_facts = @automaton.update(name, node, 'fact') if node
+        msg('info' , "Facts for node >#{ @name }< added to the ENC") if update_facts
       rescue
         msg('error', "Facts for >#{ @name }< could not be stored") if @config[:enablefacts] == 'true'
       end

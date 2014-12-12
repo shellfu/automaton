@@ -29,12 +29,14 @@ module Automaton
                 @log.error(msg)
               when 'warn'
                 @log.warn(msg)
+              when 'to_file'
+                @log.warn(msg)
               when 'debug'
                 @config[:debug] == 'true' ? @log.debug(msg) : nil
               else
                 @config[:verbose] == 'true' ? @log.info(msg) : nil
             end
-      Logger.new(STDOUT).info(msg) if @is_cli
+      Logger.new(STDOUT).info(msg) if @is_cli and severity != 'to_file'
       log
     end
   end

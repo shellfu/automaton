@@ -41,9 +41,9 @@ module Automaton
               description "#{ele} a node or element"
               on :n,:name, "Node or Instance Name to #{ele}", :argument => :required
               on :e,:environment, 'The Environment the node is a part of', :argument => :required
-              on :c=,:classes=, 'Classes that should be applied to the node', :as => String
-              on :p=,:parameters=, 'Parameters that should be applied to the node', :as => String
-              on :i=,:inherits=, 'The Node from which to inherit classes', :as => String
+              on :c,:classes=, 'Classes that should be applied to the node', :as => String
+              on :p,:parameters=, 'Parameters that should be applied to the node', :as => String
+              on :i,:inherits=, 'The Node from which to inherit classes', :as => String
             end
           end
         }
@@ -69,7 +69,12 @@ module Automaton
       end
 
       # Parse Arguments
-      @opts.parse
+      begin
+        @opts.parse
+      rescue Slop::Error => e
+        puts e.message
+        puts @opts # print help
+      end
 
       #Set Commands
       @command     = @opts.parse[0].to_s.empty? ? @opts : @opts.parse[0].to_sym

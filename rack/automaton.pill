@@ -1,12 +1,12 @@
 ENV["RAILS_ENV"] = "development"
 
-Bluepill.application("automaton", :log_file => '/var/log/puppet/bluepill_automaton.log') do |app|
+Bluepill.application("automaton", :log_file => '/opt/automaton/log/bluepill_automaton.log') do |app|
 
   app.process("unicorn") do |process|
     process.pid_file           = '/var/run/automaton/automaton_unicorn.pid'
     process.working_dir        = '/opt/automaton'
 
-    process.start_command      = "unicorn -c /opt/automaton/rack/automaton.conf -E development -D"
+    process.start_command      = "bundle exec unicorn -c /opt/automaton/rack/automaton.conf -E production -D"
     process.stop_command       = "kill -QUIT {{PID}}"
     process.restart_command    = "kill -USR2 {{PID}}"
 
@@ -20,7 +20,7 @@ Bluepill.application("automaton", :log_file => '/var/log/puppet/bluepill_automat
     process.monitor_children do |child_process|
       child_process.stop_command = "kill -QUIT {{PID}}"
 
-      child_process.checks :mem_usage, :every => 30.seconds, :below => 200.megabytes, :times => [3,4], :fires => :stop
+      child_process.checks :mem_usage, :every => 30.seconds, :below => 85.megabytes, :times => [3,4], :fires => :stop
       child_process.checks :cpu_usage, :every => 30.seconds, :below => 40, :times => [3,4], :fires => :stop
     end
   end

@@ -2,10 +2,10 @@ God.watch do |w|
   w.name     = "automaton"
   w.interval = 30.seconds
   w.pid_file = "/var/run/automaton/automaton_unicorn.pid"
-  w.log      = "/opt/tzg/automaton/unicorn_automaton.log"
-  w.dir      = "/opt/tzg/automaton"
+  w.log      = "/opt/automaton/log/unicorn_automaton.log"
+  w.dir      = "/opt/automaton"
 
-  w.start   = 'ulimit -v 750000 && exec /opt/tzg/ruby/bin/unicorn -c /opt/tzg/automaton/rack/automaton.conf -D'
+  w.start   = 'bundle exec unicorn -c /opt/automaton/rack/automaton.conf -E production -D'
   w.stop    = "kill -QUIT `cat #{w.pid_file}`"
   w.restart = "kill -USR2 `cat #{w.pid_file}`"
 
