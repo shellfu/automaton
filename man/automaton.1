@@ -1,0 +1,152 @@
+.TH automaton 1 2014-12-15 "automaton 0.6.1" "User Manuals"
+
+.SH NAME
+automaton \- A lightweight external node classifier for the puppet configuration
+manager.
+
+.SH SYNOPSIS
+.B automaton <command> -n <node_name> <args>
+.br
+.B automaton --version
+
+.B -n | --name **This is required for _all_ commands**
+The name of the node, instance, machine, server or what ever you would like
+to call it.
+
+.SH DESCRIPTION
+automaton is a lightweight external node classifier for puppet that supports
+multiple data backends. New backend storage mechanisms can be easily written
+for automaton. It has a simple command line interface, as well as an optional
+REST interface. automaton is written in ruby, and authored by ShellFu, and is
+provided as-is with no warranty expressed, implied or otherwise. Use at your
+own risk.
+
+.SH MAIN COMMANDS
+
+Automaton supports lookup, add, update and remove commands. These commands
+will be primarily what you will be working when interacting with machine data.
+
+.B Important note about delimiters:
+.br
+Both command-line and rest interfaces have very similar formats to make it easy to remember.
+Take note of the below delimiters when adding class parameters or top level parameters. You
+may add or update one class or parameter at a time or multiple additions as per below.
+
+The delimiters for classes and parameters is a >,<(comma). While the delimiter for class
+parameters is a >^<(carrot). This is the format for command-line and rest interfaces:
+
+    * for class parameters you specify like: class1^parameter=value,class2,class3
+    * for top parameters you specify like:   key=value,key1=value
+
+----------------------------------------------------------------------------------
+
+.B automaton lookup -n [name]
+.br
+Use lookup to lookup a node definition.
+
+    automaton lookup -n node01.example.com
+
+.B automaton add -n [name] [options]
+.br
+Use add a node definition. Note that the options vary depending on what you're
+adding.
+
+This command adds the node definition for node01.example.com with the class timezone,
+and class parameter timezone=America/Denver
+    automaton add -n node01.example.com -c timezone^timezone=America/Denver
+
+.B automaton update -n [name] [options]
+.br
+Use update a node definition. Note that the options vary depending on what you're
+updating.
+
+This command updates the node definition with the class timezone, and class parameter
+timezone=Europe/Berlin
+    automaton update -n node01.example.com -c timezone^timezone=Europe/Berlin
+
+.B automaton remove -n [name] [options]
+.br
+Use remove to remove a node definition or to remove classes or parameters from a node
+definition. As with update the options vary depending on what you're removing.
+
+This command removes the class timezone from node01.example.com
+    automaton remove -n node01.example.com -c timezone
+
+.SH MISCELLANEOUS COMMANDS
+
+Miscellaneous subcommands either accept no command line arguments, or accept
+non-standard arguments.
+
+.B automaton fact [lookup | collect] -n [name] [-f [fact_name | ALL]]
+.br
+Automaton fact command can either lookup facts or collect them, but it cannot change facts.
+Facts are pulled directly from facter using puppet's inventory service. To make use of fact storage,
+you must be using mongo backend. This will change in the future, but for now it is what it is.
+
+This command collects the latest facter data for the machine node01.example.com
+    automaton fact collect -n node01.example.com
+
+This command looks up the fact "processorcount" for the machine node01.example.com
+    automaton fact lookup -n node01.example.com -f processorcount
+
+This command shows _ALL_ facts for the machine node01.example.com, and displays them in YAML format
+    automaton fact lookup -n node01.example.com -f ALL
+    
+
+.TP
+.B automaton --version
+Shows the automaton version number.
+
+
+.SH MORE EXAMPLES
+
+For examples please see the automaton tutorial man page at
+
+.RS
+man automaton-tutorial
+.RE
+
+or the online documentation starting at
+
+.RS
+<http://shellfu.github.io/automaton>
+.RE
+
+Note that the online documentation is more detailed and more current than this
+man page.
+
+.SH FILES
+
+.TP
+<install_path>/config/config.yml
+User configuration file - see also automaton(5).
+
+
+
+.SH "CREDITS & COPYRIGHTS"
+Copyright (C) 2012 \- 2014 P. Daniel 'ShellFu' Kendrick
+
+Automaton is distributed under the GPL license.
+
+.SH SEE ALSO
+.BR automaton(5),
+.BR automaton-tutorial(5),
+
+For more information regarding automaton, see the following:
+
+.TP
+The official site at
+<http://shellfu.github.io/automaton>
+
+.TP
+The official code repository at
+<git://shellfu.com/automaton>
+
+.TP
+You can contact the project by emailing
+<dk@shellfu.com>
+
+.SH REPORTING BUGS
+.TP
+Bugs in automaton may be reported to the issue-tracker at
+<http://github.com/shellfu/issues>

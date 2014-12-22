@@ -22,94 +22,109 @@
 # web    => http://www.shellfu.com
 #
 require_relative '../lib/node'
+require_relative '../lib/fact'
 require 'slop'
 require 'yaml'
 
 module Automaton
-  class CLI
+  class Global_Options
+    def self.common(command)
+      command.on :n,:name, "Node or Instance Name to add/update/remove", :argument => :required
+      command.on :e,:environment, 'The Environment the node is a part of', :argument => :required
+      command.on :c,:classes=, 'Classes that should be applied to the node', :as => String
+      command.on :p,:parameters=, 'Parameters that should be applied to the node', :as => String
+      command.on :i,:inherits=, 'The Node from which to inherit classes', :as => String
+    end
 
+    def self.lookup(command)
+      command.on :n,:name, 'The name of the node to lookup', :argument => :required
+    end
+  end
+
+  class Parse_Command_Line_Arguments
     def initialize
-      @command_options = ARGV[1].to_s
-      command_array = ['add', 'update', 'remove']
-
-      # Option Parsing, and Subcommands
+      @command_options = ARGV[2].to_s
+      @sub_command = ARGV[1].to_s
       @opts = Slop.new(:help=>true) do
-
-        command_block = Proc.new {
-          command_array.each do |ele|
-            command ele do
-              description "#{ele} a node or element"
-              on :n,:name, "Node or Instance Name to #{ele}", :argument => :required
-              on :e,:environment, 'The Environment the node is a part of', :argument => :required
-              on :c,:classes=, 'Classes that should be applied to the node', :as => String
-              on :p,:parameters=, 'Parameters that should be applied to the node', :as => String
-              on :i,:inherits=, 'The Node from which to inherit classes', :as => String
-            end
-          end
-        }
-
-        banner "usage: #{$0} [command] [options]\n"
+        banner "usage: #{$0} [command] -n <node_name> [options]\n"
 
         on :v, :verbose, 'Enable verbose mode'
-        on :d, :debug, 'Enable debug mode'
+        on :d, :debug,   'Enable debug mode'
+
+        on :version, 'Display automaton version' do
+          puts "0.6.1"
+        end
+
+        ['add', 'update', 'remove'].each do |ele|
+          command ele do
+            description "#{ele} a node or element"
+            banner "\nusage: #{$0} #{ele} -n <node_name> [options]\n"
+            Global_Options.common(self)
+          end
+        end
 
         command 'lookup' do
           description 'Look up a node by name and return class information'
-          on :n,:name, 'The name or FQDN of the node you want to lookup', :argument => :required
+          banner "\nusage: #{$0} lookup -n <node_name>\n"
+          Global_Options.lookup(self)
         end
 
-        command_block.call
-
-        command 'facts' do
-          description 'Retrieves and Keeps Facts up to date'
-          on :n,:name, 'Node or Instance Name to collect facts for', :argument => :required
-          on :u,:update, 'Flag to update facts instead of retrieval'
+        command 'fact' do
+          description "fact collect and fact lookup commands"
+          banner "\nusage: #{$0} fact lookup -n <node_name> -f [<fact_name>|ALL]\nusage: #{$0} fact collect -n <node_name>\n"
+          Global_Options.lookup(self)
+          on :f,:fact=, 'The fact name to lookup or ALL', :as => String, :argument => :required
+          run { |opts, args| @sub_command = args.shift }
         end
-
       end
+      parse_arguments
+    end
 
+    def parse_arguments
       # Parse Arguments
       begin
-        @opts.parse
+        options = @opts.parse
       rescue Slop::Error => e
         puts e.message
         puts @opts # print help
       end
-
       #Set Commands
-      @command     = @opts.parse[0].to_s.empty? ? @opts : @opts.parse[0].to_sym
-      @cmd         = @opts.fetch_command(@command)
-
-      #Set Global Options
-      debug        = true if @opts.d?
-      verbose      = true if @opts.v?
+      @command = options[0].to_s.empty? ? options : options[0].to_sym
+      @command_hash = @opts.fetch_command(@command)
 
       # Set from command line logging
-      Automaton::Log::from_cli(is_debug = debug, is_verbose = verbose, is_cli = true)
+      Automaton::Log::from_cli(is_debug = (true if @opts.d?), is_verbose = (true if @opts.v?), is_cli = true)
     end
 
-    def data
-      cmd  = @opts.fetch_command(@command)
-      data = { :node => cmd[:name],
+    def fact_data
+      { :node => @command_hash[:name],
+               :sub_command => @sub_command,
+               :fact_name => @command_hash[:fact]
+      }
+    end
+
+    def node_data
+      data = { :node => @command_hash[:name],
                :enc => {
-                   :environment => cmd[:environment],
-                   :classes     => cmd[:classes],
-                   :parameters  => cmd[:parameters]
+                   :environment => @command_hash[:environment],
+                   :classes     => @command_hash[:classes],
+                   :parameters  => @command_hash[:parameters]
                },
-               :inherit => cmd[:inherits]
+               :inherit => @command_hash[:inherits]
       }
       return data
     end
 
-    def classifier
-      return print "#{@opts}\n" if @command_options.empty?
+    def return_commands
+      return print "#{@opts}\n" if @command_options.empty? unless @opts.version?
       return if @command_options == "-h" || @command_options == "--help"
-      return print Automaton::Node.new(data).send(@command.to_s).to_yaml if @command.to_s == 'lookup'
-      return Automaton::Node.new(data).send(@command.to_s) unless @cmd.nil?
+      return print Automaton::Node.new(node_data).send(@command.to_s).to_yaml if @command.to_s == 'lookup'
+      return Automaton::Fact.new(fact_data).send(@command.to_s) if @command.to_s == 'fact'
+      return Automaton::Node.new(node_data).send(@command.to_s) unless @command_hash.nil?
     end
 
   end
 
-  CLI.new.classifier
+  Parse_Command_Line_Arguments.new.return_commands
 
 end

@@ -11,50 +11,39 @@ module Automaton
 
   class Node
     def initialize(options)
+      @data      = options
       @config    = Automaton::Configure::config
       @automaton = Automaton::Helper::new
-      @log       = Automaton::Log
       @helper    = Automaton::NodeHelper::new
       @name      = options[:node]
       @result    = @automaton.find(@name)
-      @env       = @helper.set_environment(options[:enc][:environment], @result ? @result['enc']['environment'] : nil)
-      @classes   = @helper.set_classes(options[:enc][:classes], @result ? @result['enc']['classes'] : nil)
-      @params    = @helper.set_parameters(options[:enc][:parameters], @result ? @result['enc']['parameters'] : nil)
-      @inherits  = @helper.set_inherits(options[:inherit], @result ? @result['inherit'] : nil)
-      @removal   = options
     end
 
 
     def data
-      { 'node' => @name,
-        'enc' => {
-            'environment' => @env,
-            'classes'     => @classes,
-            'parameters'  => @params
-        },
-        'inherit' => @inherits
-      }
-    end
-
-
-    def facts
-      msg('info' , "Proceeding with Fact Retrieval and Storage for >#{ @name }<") if @config[:enablefacts] == 'true'
-      store_facts(@name) if @config[:enablefacts] == 'true'
+      env       = @helper.set_environment(@data[:enc][:environment], @result ? @result['enc']['environment'] : nil)
+      classes   = @helper.set_classes(@data[:enc][:classes], @result ? @result['enc']['classes'] : nil)
+      params    = @helper.set_parameters(@data[:enc][:parameters], @result ? @result['enc']['parameters'] : nil)
+      inherits  = @helper.set_inherits(@data[:inherit], @result ? @result['inherit'] : nil)
+      data = { 'node' => @name,
+                'enc' => {
+                    'environment' => env,
+                    'classes'     => classes,
+                    'parameters'  => params
+                },
+                'inherit' => inherits
+              }
+      return data
     end
 
 
     def msg(severity, msg)
-      @log.msg(severity, msg)
+      Automaton::Log.msg(severity, msg)
     end
 
 
     def find(name)
       @automaton.find(name)
-    end
-
-
-    def find_facts(name)
-      @automaton.find_facts(name)
     end
 
 
@@ -88,6 +77,7 @@ module Automaton
         else
           node['enc'] = @result['enc']
         end
+        node = Automaton::NodeFacts::deep_iterate(node)
         return JSON.parse(node['enc'].to_json)
       else 
 	      return msg('info', "Node >#{ @name }< NOT found in the ENC")
@@ -111,28 +101,12 @@ module Automaton
         msg('info', "Node >#{ @name }< NOT found in the ENC")
         return 'not_found'
       end
-      fact_result = find_facts(@name) if @config[:database_type] == 'mongo'
-      remove_node = (@removal[:enc][:classes] or @removal[:enc][:parameters])
+      remove_node = (@data[:enc][:classes] or @data[:enc][:parameters])
       if remove_node
-        node_data = @helper.removal(@removal, @result)
+        node_data = @helper.removal(@data, @result)
         msg('info', "Removed item from >#{ @name }< in the ENC") if @automaton.update(@result, node_data, 'node')
       else
         msg('info', "Node >#{ @name }< Removed from ENC") if @automaton.remove(@result, 'node')
-        msg('info', "Facts for node >#{ @name }< Removed from ENC") if @automaton.remove(facts_result, 'fact') if fact_result
-      end
-    end
-
-
-    protected
-    def store_facts(name)
-      @config[:enablefacts] = 'false' if @config[:database_type] =~ /(yaml|json)/
-      begin
-        facts = Automaton::NodeFacts::retrieve_facts(name).to_hash
-        node = (facts == {}) ? nil : {'node' => name, 'facts' => facts}
-        update_facts = @automaton.update(name, node, 'fact') if node
-        msg('info' , "Facts for node >#{ @name }< added to the ENC") if update_facts
-      rescue
-        msg('error', "Facts for >#{ @name }< could not be stored") if @config[:enablefacts] == 'true'
       end
     end
 
