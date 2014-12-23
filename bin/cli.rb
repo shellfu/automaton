@@ -104,7 +104,7 @@ module Automaton
     end
 
     def node_data
-      data = { :node => @command_hash[:name],
+      { :node => @command_hash[:name],
                :enc => {
                    :environment => @command_hash[:environment],
                    :classes     => @command_hash[:classes],
@@ -112,7 +112,6 @@ module Automaton
                },
                :inherit => @command_hash[:inherits]
       }
-      return data
     end
 
     def return_commands

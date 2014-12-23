@@ -72,6 +72,19 @@ definition. As with update the options vary depending on what you're removing.
 This command removes the class timezone from node01.example.com
     automaton remove -n node01.example.com -c timezone
 
+.SH FACTER FACT INTERPOLATION
+Automaton can make use of puppet's inventory service, and provide fact interpolation directly in the
+node definition. You can add a fact to be replace by a facter value with the syntax: %{::fact_name}.
+
+.B NOTE:
+.br
+Puppet inventory service must be setup, and enablefacts = true in <install_path>/config/config.yml
+
+This command sets the parameter kernel, and uses the kernel facter value as its value.
+    automaton update -n node01.example.com -p kernel=%{::kernel}
+
+----------------------------------------------------------------------------------
+
 .SH MISCELLANEOUS COMMANDS
 
 Miscellaneous subcommands either accept no command line arguments, or accept
@@ -119,7 +132,7 @@ man page.
 
 .TP
 <install_path>/config/config.yml
-User configuration file - see also automaton(5).
+User configuration file - see file for details.
 
 
 
