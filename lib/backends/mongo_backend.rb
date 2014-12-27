@@ -7,30 +7,34 @@ module Automaton
   class MongoBackend
     include Mongo
     def initialize
-      @config   = Automaton::Configure::config
-      @log      = Automaton::Log
+      config    = Automaton::Configure::config
       # Connect to Mongo
-      @hosts    = @config[:mdb_hosts].split(',')
-      host,port = @hosts[0].split(':')
-      @client   = (@config[:replicaset] == 'yes') ? MongoReplicaSetClient.new(@hosts) : MongoClient.new(host, port)
-      @database = @client[@config[:database]]
+      hosts     = config[:mdb_hosts].split(',')
+      host,port = hosts[0].split(':')
+      client    = (config[:replicaset] == 'yes') ? MongoReplicaSetClient.new(hosts) : MongoClient.new(host, port)
+      database  = client[config[:database]]
 
       # Authenticate, if set
-      @database.authenticate(@config[:username], @config[:password]) if @config.has_key? :username
+      database.authenticate(config[:username], config[:password]) unless config[:username].to_s.empty?
 
       # Set collection names
-      @node_collection = @database[@config[:nodecollection]]
-      @fact_collection = @database[@config[:factcollection]]
+      @node_collection = database[config[:nodecollection]]
+      @fact_collection = database[config[:factcollection]]
 
       # Set and Ensure Indexes on node name
-      @node_collection.create_index('node', :unique => true)
-      @node_collection.ensure_index('node', :unique => true)
-      @fact_collection.create_index('node', :unique => true)
-      @fact_collection.ensure_index('node', :unique => true)
+      [ @node_collection, @fact_collection ].each do |collection|
+        collection.create_index('node', :unique => true)
+        collection.ensure_index('node', :unique => true)
+      end
     end
 
-    def find(name)
-      @node_collection.find_one(:node => name)
+    def msg(severity, message)
+      Automaton::Log::msg(severity, message)
+    end
+
+    def find(name, type)
+      return @node_collection.find_one(:node => name) if type == 'node'
+      return @fact_collection.find_one(:node => name) if type == 'fact'
     end
 
     def find_facts(name)
@@ -44,7 +48,7 @@ module Automaton
         when 'fact'
           @fact_collection.insert(data)
         else
-          @log.msg('warn',"#{type} is not supported")
+          msg('warn',"#{type} is not supported")
       end
     end
 
@@ -55,7 +59,7 @@ module Automaton
         when 'fact'
           @fact_collection.update({ :_id => name["_id"] }, data)
         else
-          @log.msg('warn',"#{type} is not supported")
+          msg('warn',"#{type} is not supported")
       end
     end
 
@@ -70,7 +74,7 @@ module Automaton
         when 'fact'
           @fact_collection.remove(name)
         else
-          @log.msg('warn',"#{type} is not supported")
+          msg('warn',"#{type} is not supported")
       end
     end
 

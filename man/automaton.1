@@ -1,4 +1,4 @@
-.TH automaton 1 2014-12-15 "automaton 0.6.1" "User Manuals"
+.TH automaton 1 2014-12-15 "automaton 0.2.2" "User Manuals"
 
 .SH NAME
 automaton \- A lightweight external node classifier for the puppet configuration
@@ -93,8 +93,7 @@ non-standard arguments.
 .B automaton fact [lookup | collect] -n [name] [-f [fact_name | ALL]]
 .br
 Automaton fact command can either lookup facts or collect them, but it cannot change facts.
-Facts are pulled directly from facter using puppet's inventory service. To make use of fact storage,
-you must be using mongo backend. This will change in the future, but for now it is what it is.
+Facts are pulled directly from facter using puppet's inventory service.
 
 This command collects the latest facter data for the machine node01.example.com
     automaton fact collect -n node01.example.com

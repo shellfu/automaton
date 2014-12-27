@@ -7,20 +7,23 @@
 # -----------------------
 # [ Automaton Database Type] :
 #  DATABASE_TYPE: this is the "type" of database to use, be it mongo, json or yaml
-#    database_type: '[mongo | yaml | json]'
+#    database_type: '[ mongo | yaml | json ]'
+#
+database_type:  'yaml'
 #
 #
 # [ Mongo Configuration ]:
 # If you're using mongodb for fact, and node definition storage, you can configure mongo here.
 #
 #  MDB_HOSTS: this is either be  a single mongo instance, or a replica set.
-#    mdb_hosts: '[ HOST:PORT | HOST01:PORT,HOST02:PORT,HOST03:PORT']
+#    mdb_hosts: '[ HOST:PORT | HOST01:PORT,HOST02:PORT,HOST03:PORT ]'
 #
 #  REPLICA_SET: this can be yes or no. If yes then automaton will connect to the entire replica set listed in MDB_HOSTS
 #   otherwise, automaton will connect to only the first host listed in MDB_HOSTS regardless of how many are listed.
 ##   replicaset: '[ yes | no ]'
 #
-#  USERNAME: The username for mongo, if you do not use authentication, then leave it commented out.
+#  USERNAME: The username for mongo, if you do not use authentication, then leave it empty. If not empty automaton will
+#   to authenticate with whatever value exists.
 #    username: '[ USERNAME ]'
 #
 #  DATABASE: The name of the database to use in mongo.
@@ -32,10 +35,30 @@
 # FACT COLLECTION: The name of the collection used for storing facter facts
 #    factcollection: '[ COLLECTION_NAME ]'
 #
+mdb_hosts:      '10.40.30.60:9969,mongohost001b:27017,mongohost001c:27017'
+replicaset:     'no'
+username:       ''
+password:       ''
+database:       'automaton'
+nodecollection: 'enc'
+factcollection: 'facts'
+#
 #
 # [ JSON & YAML ]:
-# DATA PATH: The path to which yaml or json files will be written. This is not needed for database_type: 'mongo'
+# This section is not needed when using a database backend vs a file backend.
+#
+# DATA PATH: The path to which yaml or json node definitions will be written. (Not needed for database_type: 'mongo')
 #    data_path: '[ PATH ]'
+#
+# FACT PATH: The path to which yaml or json fact files will be written. (not needed for database_type: 'mongo')
+#    fact_path: '[ PATH ]'
+#
+ # GROUP PATH: The path to which yaml or json fact files will be written. (not needed for database_type: 'mongo')
+ #    group_path: '[ PATH ]'
+ #
+data_path:      '/home/shellfu/opt/nodes'
+fact_path:      '/home/shellfu/opt/facts'
+group_path:     '/home/shellfu/opt/groups'
 #
 #
 # [ PUPPET INVENTORY SERVICE ]
@@ -45,14 +68,15 @@
 # want to use fact interpolation in node definitions.
 #    enablefacts: '[ true | false ]'
 #
-# INVENTORY URL: The URL of your Inventory Service. This is default to your puppetmaster
-#    inventoryurl:   '[ http://puppet | URL_TO_SERVICE ]'
-#
-# INVENTORY PORT: The port that your Inventory Service is listening.
-#    inventoryport:  '[ 8140 | PORT ]'
+# INVENTORY URL: The URL and PORT of your Inventory Service. This is default to your puppetmaster
+#    inventoryurl:   '[ http://puppet:8140 | URL:PORT ]'
 #
 # ENVIRONMENT: The environment from which to search in the Inventory Service.
 #    environment:    '[ production | ENVIRONMENT ]'
+#
+enablefacts:    'true'
+inventoryurl:   'https://10.40.30.163:8140'
+environment:    'production'
 #
 #
 # [ LOGGING CONFIGURATION ]
@@ -69,31 +93,7 @@
 #    debug: '[ true | false ]'
 #
 #
-
-# [ Automaton Database Type ]
-database_type:  'mongo'
-
-# [ Mongo Configuration ]
-mdb_hosts:      '10.40.30.60:9969,mongohost001b:27017,mongohost001c:27017'
-replicaset:     'no'
-#username:       ''
-#password:       ''
-database:       'automaton'
-nodecollection: 'enc'
-factcollection: 'facts'
-
-# [ JSON & YAML ]
-data_path:      '/home/shellfu/opt/nodes'
-
-# [ PUPPET INVENTORY SERVICE ]
-enablefacts:    'true'
-inventoryurl:   'https://10.40.30.163'
-inventoryport:  '8140'
-environment:    'production'
-
-# [ Logging Configuration ]
-logpath:        '/home/shellfu/var/logs/automaton.log'
 enablelog:      'true'
+logpath:        '/home/shellfu/var/logs/automaton.log'
 verbose:        'false'
 debug:          'false'
-

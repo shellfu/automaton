@@ -13,6 +13,19 @@ module Automaton
       @filetype    = @config[:database_type]
       @to_filetype = (@filetype == 'json') ? to_json : to_yaml
       Dir.mkdir(@config[:data_path]) unless Dir.exist?(@config[:data_path])
+      Dir.mkdir(@config[:fact_path]) unless Dir.exist?(@config[:fact_path])
+      Dir.mkdir(@config[:group_path]) unless Dir.exist?(@config[:group_path])
+    end
+
+    def determine_path(name, type)
+      case type
+        when 'group'
+          return "#{@config[:group_path]}/#{ name }.#{ @filetype }"
+        when 'fact'
+          return "#{@config[:fact_path]}/#{ name }.#{ @filetype }"
+        else
+          return "#{@config[:data_path]}/#{ name }.#{ @filetype }"
+      end
     end
 
     def msg(severity, msg)
@@ -20,43 +33,27 @@ module Automaton
     end
 
     # Find an Entry
-    def find(name)
-      path = "#{@config[:data_path]}/#{ name }.#{ @filetype }"
+    def find(name, type)
+      path = determine_path(name,type)
       if File.exists?(path)
         node = File.open(path, 'r')
         load(node)
       else
         nil
       end
-
     end
 
     # Create a new entry.
     def add(name, data, type)
-      path = "#{@config[:data_path]}/#{ name }.#{ @filetype }"
+      path = determine_path(name,type)
       h = (@filetype == 'json') ? data.to_hash.to_json : data.to_hash.to_yaml
-      File.open("#{@config[:data_path]}/#{ name }.#{ @filetype }", 'w+') { |f| f.write(h) } unless File.exists?(path)
+      File.open(path, 'w+') { |f| f.write(h) } unless File.exists?(path)
     end
 
     # Update the node object to the database.
     def update(name, data, type)
-      path = "#{@config[:data_path]}/#{name['node']}.#{ @filetype }"
-      File.open(path, 'w') { |f| f.write(data.to_json) } if @filetype == 'json'
-      File.open(path, 'w') { |f| f.write(data.to_yaml) } if @filetype == 'yaml'
-    end
-
-    # save the node object to the database.
-    def save(name, data, type)
-      path = "#{@config[:data_path]}/#{name['node']}.#{ @filetype }"
-      original = load(path)
-      if data['enc'].has_key?('classes') then
-        original['enc']['classes'] = data['enc']['classes'] if type == 'node'
-      elsif data['enc'].has_key?('parameters')
-        original['enc']['parameters'] = data['enc']['parameters'] if type == 'node'
-      else
-        # CONTINUE AND LOG
-      end
-      File.open(path, 'w') { |f| f.write("#{ original }.#{ @filetype }") }
+      h = (@filetype == 'json') ? data.to_json : data.to_yaml
+      File.open(determine_path(name['node'],type), 'w') { |f| f.write(h) }
     end
 
     # Delete a entry by name.
@@ -85,8 +82,7 @@ module Automaton
       end
 
       begin
-        data = JSON.load(path) if @filetype == 'json'
-        data = YAML.load_file(path) if @filetype == 'yaml'
+        data = (@filetype == 'json') ? JSON.load(path) : YAML.load_file(path)
         data.merge!(data) if data
       rescue ArgumentError => e
         msg('error', "Could not load >#{name}<: >#{e.msg}<")

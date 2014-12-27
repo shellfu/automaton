@@ -6,16 +6,16 @@ require_relative 'log'
 
 module Automaton
   class NodeFacts
-    def self.initialize
+    def initialize
       @fact_list = {}
       @config              = Automaton::Configure::config
     end
 
-    def self.retrieve_facts(name)
-      @config              = Automaton::Configure::config
+    def retrieve_facts(name)
       if @config[:enablefacts] == 'true'
+        host              = @config[:inventoryurl].split(':')
         # Break down curl -k -H 'Accept: pson' 'https://puppet:8140/production/facts/node'
-        uri               = URI.parse("#{ @config[:inventoryurl] }:#{ @config[:inventoryport] }")
+        uri               = URI.parse("https:#{ host[1] }:#{ host[2] }")
         path              = "/#{ @config[:environment] }/facts/#{ name }"
         http              = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl      = true
@@ -30,7 +30,7 @@ module Automaton
           Automaton::Log::msg('warn', "WARNING: Could not find facts for #{ name }") if @config[:verbose] == 'true'
           Hash.new(nil)
         rescue Errno::ECONNREFUSED, Timeout::Error
-          Automaton::Log::msg('error', "ERROR: Cannot connect to inventory service >#{ @config[:inventoryurl] }:#{ @config[:inventoryport] }<") if @config[:debug] == 'true'
+          Automaton::Log::msg('error', "ERROR: Cannot connect to inventory service >#{ host }:#{ port }<") if @config[:debug] == 'true'
           Hash.new(nil)
         end
       else
@@ -38,8 +38,7 @@ module Automaton
       end
     end
 
-    def self.deep_iterate(hash)
-      @config              = Automaton::Configure::config
+    def deep_iterate(hash)
       if @config[:enablefacts] == 'true'
         @fact_hash = retrieve_facts(hash['node']) if hash['node']
         hash.each_pair do |k,v|
@@ -49,7 +48,7 @@ module Automaton
             #puts "key: #{k} value: #{v}"
             if v =~ /(?<=\{)(.*?)(?=\})/
               @fact_name = v.match(/(?<=\{)(.*?)(?=\})/) {|m| m.to_s}.sub(%r{^::}, '')
-              value      = v.gsub(/%\{.*\}/, ( if @fact_hash[@fact_name] then @fact_hash[@fact_name] else 'undef_(chk inv service on pm)' end))
+              value      = v.gsub(/%\{.*\}/, (@fact_hash[@fact_name] ? @fact_hash[@fact_name] : 'undef_(chk inv service on pm)'))
               hash[k]    = value
             end
           end

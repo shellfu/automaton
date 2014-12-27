@@ -9,10 +9,11 @@ require 'json'
 module Automaton
   class Fact
     def initialize(data)
-      @data      = data
-      @config    = Automaton::Configure::config
-      @automaton = Automaton::Helper::new
-      @name      = data[:node]
+      @data        = data
+      @config      = Automaton::Configure::config
+      @automaton   = Automaton::Helper::new
+      @fact_helper = Automaton::NodeFacts::new
+      @name        = data[:node]
     end
 
     def msg(severity, msg)
@@ -36,19 +37,18 @@ module Automaton
     end
 
     def find_facts(name)
-      @automaton.find_facts(name)
+      @automaton.find(name, 'fact')
     end
 
     protected
     def store_facts(name)
-      @config[:enablefacts] = 'false' if @config[:database_type] =~ /(yaml|json)/
       if @config[:enablefacts] == 'true'
-        @facts = Automaton::NodeFacts::retrieve_facts(@name).to_hash
+        facts = @fact_helper.retrieve_facts(@name).to_hash
       else
-        @facts = {}
+        facts = {}
       end
       begin
-        node = (@facts == {}) ? nil : {'node' => name, 'facts' => @facts}
+        node = (facts == {}) ? nil : {'node' => name, 'facts' => facts}
         update_facts = @automaton.update(name, node, 'fact') if node
         msg('info' , "Facts for node >#{ name }< added to the ENC") if update_facts
       rescue

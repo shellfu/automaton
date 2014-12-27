@@ -16,7 +16,9 @@ module Automaton
       @automaton = Automaton::Helper::new
       @helper    = Automaton::NodeHelper::new
       @name      = options[:node]
-      @result    = @automaton.find(@name)
+      puts @name
+      @result    = @automaton.find(@name, 'node')
+      puts @result
     end
 
 
@@ -43,7 +45,7 @@ module Automaton
 
 
     def find(name)
-      @automaton.find(name)
+      @automaton.find(name, 'node')
     end
 
 
@@ -92,11 +94,13 @@ module Automaton
 
 
     def update
+      print data
       return 'successful', msg('info', "Node >#{ @name }< Updated") if @automaton.update(@result, data, 'node')
     end
 
 
     def remove
+      puts @result
       unless @result
         msg('info', "Node >#{ @name }< NOT found in the ENC")
         return 'not_found'

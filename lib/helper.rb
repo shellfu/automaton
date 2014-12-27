@@ -20,8 +20,8 @@ module Automaton
       end
     end
 
-    def find(name)
-      @db.find(name)
+    def find(name, type)
+      @db.find(name, type)
     end
 
     def find_facts(name)
@@ -34,10 +34,6 @@ module Automaton
 
     def update(name, data, type)
       @db.update(name, data, type)
-    end
-
-    def save(name, data, type)
-      @db.save(name, data, type)
     end
 
     def remove(name, type)
