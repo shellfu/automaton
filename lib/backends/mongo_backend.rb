@@ -28,13 +28,23 @@ module Automaton
       end
     end
 
+    def determine_collection(type)
+      case type
+        when 'node'
+          @node_collection
+        when 'fact'
+          @fact_collection
+        else
+          msg('warn',"#{type} is not supported")
+      end
+    end
+
     def msg(severity, message)
       Automaton::Log::msg(severity, message)
     end
 
     def find(name, type)
-      return @node_collection.find_one(:node => name) if type == 'node'
-      return @fact_collection.find_one(:node => name) if type == 'fact'
+      return determine_collection(type).find_one(:node => name)
     end
 
     def find_facts(name)
@@ -42,40 +52,15 @@ module Automaton
     end
 
     def add(name, data, type)
-      case type
-        when 'node'
-          @node_collection.insert(data)
-        when 'fact'
-          @fact_collection.insert(data)
-        else
-          msg('warn',"#{type} is not supported")
-      end
+      return determine_collection(type).insert(data)
     end
 
     def update(name, data, type)
-      case type
-        when 'node'
-          @node_collection.update({ :_id => name["_id"] }, data)
-        when 'fact'
-          @fact_collection.update({ :_id => name["_id"] }, data)
-        else
-          msg('warn',"#{type} is not supported")
-      end
-    end
-
-    def save(name, data, type)
-      update(name, data, type)
+      return determine_collection(type).update({ :_id => name["_id"] }, data)
     end
 
     def remove(name, type)
-      case type
-        when 'node'
-          @node_collection.remove(name)
-        when 'fact'
-          @fact_collection.remove(name)
-        else
-          msg('warn',"#{type} is not supported")
-      end
+      return determine_collection(type).remove(name)
     end
 
   end

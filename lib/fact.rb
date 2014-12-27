@@ -12,12 +12,15 @@ module Automaton
       @data        = data
       @config      = Automaton::Configure::config
       @automaton   = Automaton::Helper::new
-      @fact_helper = Automaton::NodeFacts::new
       @name        = data[:node]
     end
 
     def msg(severity, msg)
       Automaton::Log.msg(severity, msg)
+    end
+
+    def facts
+      Automaton::NodeFacts::new
     end
 
     def fact
@@ -43,12 +46,12 @@ module Automaton
     protected
     def store_facts(name)
       if @config[:enablefacts] == 'true'
-        facts = @fact_helper.retrieve_facts(@name).to_hash
+        facts_hash = facts.retrieve_facts(@name).to_hash
       else
-        facts = {}
+        facts_hash = {}
       end
       begin
-        node = (facts == {}) ? nil : {'node' => name, 'facts' => facts}
+        node = (facts_hash == {}) ? nil : {'node' => name, 'facts' => facts_hash}
         update_facts = @automaton.update(name, node, 'fact') if node
         msg('info' , "Facts for node >#{ name }< added to the ENC") if update_facts
       rescue

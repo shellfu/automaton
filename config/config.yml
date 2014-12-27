@@ -9,7 +9,7 @@
 #  DATABASE_TYPE: this is the "type" of database to use, be it mongo, json or yaml
 #    database_type: '[ mongo | yaml | json ]'
 #
-database_type:  'yaml'
+database_type:  'mongo'
 #
 #
 # [ Mongo Configuration ]:

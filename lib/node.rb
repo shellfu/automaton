@@ -11,14 +11,12 @@ module Automaton
 
   class Node
     def initialize(options)
-      @data      = options
-      @config    = Automaton::Configure::config
-      @automaton = Automaton::Helper::new
-      @helper    = Automaton::NodeHelper::new
-      @name      = options[:node]
-      puts @name
-      @result    = @automaton.find(@name, 'node')
-      puts @result
+      @data        = options
+      @config      = Automaton::Configure::config
+      @automaton   = Automaton::Helper::new
+      @helper      = Automaton::NodeHelper::new
+      @name        = options[:node]
+      @result      = @automaton.find(@name, 'node')
     end
 
 
@@ -38,6 +36,9 @@ module Automaton
       return data
     end
 
+    def facts
+      Automaton::NodeFacts::new
+    end
 
     def msg(severity, msg)
       Automaton::Log.msg(severity, msg)
@@ -79,7 +80,7 @@ module Automaton
         else
           node['enc'] = @result['enc']
         end
-        node = Automaton::NodeFacts::deep_iterate(node)
+        node = facts.deep_iterate(node)
         return JSON.parse(node['enc'].to_json)
       else 
 	      return msg('info', "Node >#{ @name }< NOT found in the ENC")
