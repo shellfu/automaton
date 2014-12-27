@@ -52,7 +52,7 @@ module Automaton
         on :d, :debug,   'Enable debug mode'
 
         on :version, 'Display automaton version' do
-          puts "0.6.1"
+          puts "0.2.3"
         end
 
         ['add', 'update', 'remove'].each do |ele|

@@ -95,13 +95,11 @@ module Automaton
 
 
     def update
-      print data
       return 'successful', msg('info', "Node >#{ @name }< Updated") if @automaton.update(@result, data, 'node')
     end
 
 
     def remove
-      puts @result
       unless @result
         msg('info', "Node >#{ @name }< NOT found in the ENC")
         return 'not_found'
